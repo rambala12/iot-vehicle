@@ -1,0 +1,288 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Init_ADC.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWAE46.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Init_ADC.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\Init_ADC.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\Init_ADC.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\Init_ADC.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file initializes all ADC registers
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x702
+   \   union <unnamed> _A_ADCCTL1_L
+   \                     _A_ADCCTL1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x704
+   \   union <unnamed> _A_ADCCTL2_L
+   \                     _A_ADCCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x70a
+   \   union <unnamed> _A_ADCMCTL0_L
+   \                     _A_ADCMCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x71a
+   \   union <unnamed> _A_ADCIE_L
+   \                     _A_ADCIE_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include "ports.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     17          extern char *display[DISPLAY_SIZE];
+     18          extern volatile unsigned char update_display;
+     19          extern volatile unsigned int update_display_count;
+     20          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     21          extern char adc_char[ADC_CHAR_SIZE] = "          ";
+   \                     adc_char:
+   \   000000                DS8 11
+   \   00000B                REQUIRE `?<Initializer for adc_char>`
+     22          
+
+   \                                 In  segment CODE, align 2
+     23          void Init_ADC(void) {
+   \                     Init_ADC:
+     24          //------------------------------------------------------------------------------
+     25          // V_DETECT_L (0x04) Pin 2 A2
+     26          // V_DETECT_R (0x08) Pin 3 A3
+     27          // V_THUMB (0x20) Pin 5 A5
+     28          //------------------------------------------------------------------------------
+     29          // ADCCTL0 Register
+     30            ADCCTL0 = ZERO;
+   \   000000   82430007     MOV.W   #0x0, &0x700
+     31            ADCCTL0 |= ADCSHT_2;
+   \   000004   B2D000020007 BIS.W   #0x200, &0x700
+     32            ADCCTL0 |= ADCMSC;
+   \   00000A   B2D080000007 BIS.W   #0x80, &0x700
+     33            ADCCTL0 |= ADCON;
+   \   000010   B2D010000007 BIS.W   #0x10, &0x700
+     34          
+     35          // ADCCTL1 Register
+     36            ADCCTL2 = ZERO;
+   \   000016   82430407     MOV.W   #0x0, &0x704
+     37            ADCCTL1 |= ADCSHS_0;
+   \   00001A   924202070207 MOV.W   &0x702, &0x702
+     38            ADCCTL1 |= ADCSHP;
+   \   000020   B2D000020207 BIS.W   #0x200, &0x702
+     39            ADCCTL1 &= ~ADCISSH;
+   \   000026   B2C000010207 BIC.W   #0x100, &0x702
+     40            ADCCTL1 |= ADCDIV_0;
+   \   00002C   924202070207 MOV.W   &0x702, &0x702
+     41            ADCCTL1 |= ADCSSEL_0;
+   \   000032   924202070207 MOV.W   &0x702, &0x702
+     42            ADCCTL1 |= ADCCONSEQ_0;
+   \   000038   924202070207 MOV.W   &0x702, &0x702
+     43          // ADCCTL1 & ADCBUSY  identifies a conversion is in process
+     44          
+     45          // ADCCTL2 Register
+     46            ADCCTL2 = ZERO;
+   \   00003E   82430407     MOV.W   #0x0, &0x704
+     47            ADCCTL2 |= ADCPDIV0;
+   \   000042   B2D000010407 BIS.W   #0x100, &0x704
+     48            ADCCTL2 |= ADCRES_2;
+   \   000048   B2D020000407 BIS.W   #0x20, &0x704
+     49            ADCCTL2 &= ~ADCDF;
+   \   00004E   B2C20407     BIC.W   #0x8, &0x704
+     50            ADCCTL2 &= ~ADCSR;
+   \   000052   A2C20407     BIC.W   #0x4, &0x704
+     51          
+     52          // ADCMCTL0 Register
+     53            ADCMCTL0 |= ADCSREF_0;
+   \   000056   92420A070A07 MOV.W   &0x70a, &0x70a
+     54            ADCMCTL0 |= ADCINCH_5;
+   \   00005C   B2D005000A07 BIS.W   #0x5, &0x70a
+     55          
+     56            ADCIE |= ADCIE0;
+   \   000062   92D31A07     BIS.W   #0x1, &0x71a
+     57            ADCCTL0 |= ADCENC;
+   \   000066   A2D30007     BIS.W   #0x2, &0x700
+     58            ADCCTL0 |= ADCSC;
+   \   00006A   92D30007     BIS.W   #0x1, &0x700
+     59          }
+   \   00006E   1001         RETA
+   \   000070                REQUIRE _A_ADCCTL0_L
+   \   000070                REQUIRE _A_ADCCTL2_L
+   \   000070                REQUIRE _A_ADCCTL1_L
+   \   000070                REQUIRE _A_ADCMCTL0_L
+   \   000070                REQUIRE _A_ADCIE_L
+     60          
+     61          //------------------------------------------------------------------------------ 
+     62          //****************************************************************************** 
+     63          // Hex to BCD Conversion
+     64          // Convert a Hex number to a BCD for display on an LCD or monitor
+     65          // //------------------------------------------------------------------------------ 
+
+   \                                 In  segment CODE, align 2
+     66          void HEXtoBCD(int hex_value) {
+   \                     HEXtoBCD:
+     67            int value;
+     68            value = ZERO;
+   \   000000   0F43         MOV.W   #0x0, R15
+     69            adc_char[INDEX_FIVE] = '0';
+   \   000002   F2403000.... MOV.B   #0x30, &adc_char + 5
+     70            while (hex_value > HIGH_HEX) {
+   \                     ??HEXtoBCD_0:
+   \   000008   3C90E803     CMP.W   #0x3e8, R12
+   \   00000C   0438         JL      ??HEXtoBCD_3
+     71              hex_value = hex_value - THOUSAND;
+   \   00000E   3C5018FC     ADD.W   #0xfc18, R12
+     72              value = value + ONE;
+   \   000012   1F53         ADD.W   #0x1, R15
+   \   000014   F93F         JMP     ??HEXtoBCD_0
+     73            }
+     74            adc_char[INDEX_FIVE] = HEX_ADD + value;
+   \                     ??HEXtoBCD_3:
+   \   000016   0E12         PUSH.W  R14
+   \   000018   C14F0000     MOV.B   R15, 0(SP)
+   \   00001C   3E41         POP.W   R14
+   \   00001E   7E503000     ADD.B   #0x30, R14
+   \   000022   C24E....     MOV.B   R14, &adc_char + 5
+     75            value = ZERO;
+   \   000026   0F43         MOV.W   #0x0, R15
+     76            while (hex_value > LOW_HEX) {
+   \                     ??HEXtoBCD_1:
+   \   000028   3C906400     CMP.W   #0x64, R12
+   \   00002C   0438         JL      ??HEXtoBCD_4
+     77              hex_value = hex_value - HUNDRED;
+   \   00002E   3C509CFF     ADD.W   #0xff9c, R12
+     78              value = value + ONE;
+   \   000032   1F53         ADD.W   #0x1, R15
+   \   000034   F93F         JMP     ??HEXtoBCD_1
+     79            }
+     80            adc_char[INDEX_SIX] = HEX_ADD + value;
+   \                     ??HEXtoBCD_4:
+   \   000036   0E12         PUSH.W  R14
+   \   000038   C14F0000     MOV.B   R15, 0(SP)
+   \   00003C   3E41         POP.W   R14
+   \   00003E   7E503000     ADD.B   #0x30, R14
+   \   000042   C24E....     MOV.B   R14, &adc_char + 6
+     81            value = ZERO;
+   \   000046   0F43         MOV.W   #0x0, R15
+     82            while (hex_value > INDEX_NINE) {
+   \                     ??HEXtoBCD_2:
+   \   000048   3C900A00     CMP.W   #0xa, R12
+   \   00004C   0438         JL      ??HEXtoBCD_5
+     83              hex_value = hex_value - INDEX_TEN;
+   \   00004E   3C50F6FF     ADD.W   #0xfff6, R12
+     84              value = value + ONE;
+   \   000052   1F53         ADD.W   #0x1, R15
+   \   000054   F93F         JMP     ??HEXtoBCD_2
+     85            }
+     86            adc_char[INDEX_EIGHT] = '.';
+   \                     ??HEXtoBCD_5:
+   \   000056   F2402E00.... MOV.B   #0x2e, &adc_char + 8
+     87            adc_char[INDEX_SEVEN] = HEX_ADD + value;
+   \   00005C   0E12         PUSH.W  R14
+   \   00005E   C14F0000     MOV.B   R15, 0(SP)
+   \   000062   3E41         POP.W   R14
+   \   000064   7E503000     ADD.B   #0x30, R14
+   \   000068   C24E....     MOV.B   R14, &adc_char + 7
+     88            adc_char[INDEX_NINE] = HEX_ADD + hex_value; 
+   \   00006C   0E12         PUSH.W  R14
+   \   00006E   C14C0000     MOV.B   R12, 0(SP)
+   \   000072   3E41         POP.W   R14
+   \   000074   7E503000     ADD.B   #0x30, R14
+   \   000078   C24E....     MOV.B   R14, &adc_char + 9
+     89            adc_char[INDEX_TEN] = '\0';
+   \   00007C   C243....     MOV.B   #0x0, &adc_char + 10
+     90          }
+   \   000080   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for adc_char>`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+     91          //****************************************************************************** 
+     92          //------------------------------------------------------------------------------
+     93          
+     94          
+     95          
+     96          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   HEXtoBCD
+      4   Init_ADC
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Initializer for adc_char>
+     130  HEXtoBCD
+     112  Init_ADC
+       2  _A_ADCCTL0_L
+       2  _A_ADCCTL1_L
+       2  _A_ADCCTL2_L
+       2  _A_ADCIE_L
+       2  _A_ADCMCTL0_L
+      11  adc_char
+
+ 
+ 242 bytes in segment CODE
+  10 bytes in segment DATA16_AN
+  11 bytes in segment DATA16_I
+  11 bytes in segment DATA16_ID
+ 
+ 242 bytes of CODE  memory
+  11 bytes of CONST memory
+  11 bytes of DATA  memory (+ 10 bytes shared)
+
+Errors: none
+Warnings: none

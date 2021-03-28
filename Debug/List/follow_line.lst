@@ -1,0 +1,586 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  20:18:54
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\follow_line.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EW2BD3.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\follow_line.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\follow_line.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\follow_line.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\follow_line.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains display information about what to place on LDC
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include "ports.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     17          extern char *display[DISPLAY_SIZE];
+     18          extern volatile unsigned char update_display;
+     19          extern volatile unsigned int update_display_count;
+     20          extern volatile unsigned char display_changed;
+     21          extern int direction; // left (0) or right (1)
+     22          extern int line_pos; 
+     23          // 0: both on white // 1: right on white // 2: left on white // 3: both on black
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     24          extern int FOLLOW_STATE = INDEX_ONE;
+   \                     FOLLOW_STATE:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for FOLLOW_STATE>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          int CIRC_STATE = ZERO;
+   \                     CIRC_STATE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          int max_time; // time it takes to complete one circle
+   \                     max_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          int wait = ZERO;
+   \                     wait:
+   \   000000                DS8 2
+     28          extern int direction; // left (0) or right (1)
+     29          extern int move_count;
+     30          extern volatile char command[COMMAND_SIZE];
+     31          
+     32          
+     33          extern volatile int circle_activated;
+     34          extern volatile int circle_count;
+     35          
+
+   \                                 In  segment CODE, align 2
+     36          void Follow_Line_Circle() {
+   \                     Follow_Line_Circle:
+     37            switch (FOLLOW_STATE) {
+   \   000000   1F42....     MOV.W   &FOLLOW_STATE, R15
+   \   000004   1F83         SUB.W   #0x1, R15
+   \   000006   1924         JEQ     ??Follow_Line_Circle_13
+   \   000008   1F83         SUB.W   #0x1, R15
+   \   00000A   4624         JEQ     ??Follow_Line_Circle_14
+   \   00000C   1F83         SUB.W   #0x1, R15
+   \   00000E   5424         JEQ     ??Follow_Line_Circle_15
+   \   000010   1F83         SUB.W   #0x1, R15
+   \   000012   6524         JEQ     ??Follow_Line_Circle_16
+   \   000014   1F83         SUB.W   #0x1, R15
+   \   000016   7424         JEQ     ??Follow_Line_Circle_17
+   \   000018   1F83         SUB.W   #0x1, R15
+   \   00001A   8324         JEQ     ??Follow_Line_Circle_18
+   \   00001C   1F83         SUB.W   #0x1, R15
+   \   00001E   9224         JEQ     ??Follow_Line_Circle_19
+   \   000020   1F83         SUB.W   #0x1, R15
+   \   000022   A424         JEQ     ??Follow_Line_Circle_20
+   \   000024   1F83         SUB.W   #0x1, R15
+   \   000026   B324         JEQ     ??Follow_Line_Circle_21
+   \   000028   1F83         SUB.W   #0x1, R15
+   \   00002A   C224         JEQ     ??Follow_Line_Circle_22
+   \   00002C   1F83         SUB.W   #0x1, R15
+   \   00002E   E824         JEQ     ??Follow_Line_Circle_23
+   \   000030   1F83         SUB.W   #0x1, R15
+   \   000032   CC24         JEQ     ??Follow_Line_Circle_24
+   \   000034   1F83         SUB.W   #0x1, R15
+   \   000036   1A24         JEQ     ??Follow_Line_Circle_25
+   \   000038   1001         RETA
+     38              case START:
+     39                line0_display(" BL START ");
+   \                     ??Follow_Line_Circle_13:
+   \   00003A   3C40....     MOV.W   #`?<Constant " BL START ">`, R12
+   \   00003E   ........     CALLA   #line0_display
+     40                Forward_On((STRAIGHT_FORWARD_L + 12000), (STRAIGHT_FORWARD_R - 5000));
+   \   000042   3D40983A     MOV.W   #0x3a98, R13
+   \   000046   3C407869     MOV.W   #0x6978, R12
+   \   00004A   ........     CALLA   #Forward_On
+     41                if (wait > 2900) {
+   \   00004E   B290550B.... CMP.W   #0xb55, &wait
+   \   000054   0838         JL      ??Follow_Line_Circle_26
+     42                  Forward_Off();
+   \   000056   ........     CALLA   #Forward_Off
+     43                  wait = ZERO;
+   \   00005A   8243....     MOV.W   #0x0, &wait
+     44                  FOLLOW_STATE = START2;
+   \   00005E   B2400D00.... MOV.W   #0xd, &FOLLOW_STATE
+   \   000064   1001         RETA
+     45                } else {
+     46                  wait++;
+   \                     ??Follow_Line_Circle_26:
+   \   000066   9253....     ADD.W   #0x1, &wait
+     47                }
+     48                break;
+   \   00006A   1001         RETA
+     49              case START2:
+     50                line0_display(" BL START ");
+   \                     ??Follow_Line_Circle_25:
+   \   00006C   3C40....     MOV.W   #`?<Constant " BL START ">`, R12
+   \   000070   ........     CALLA   #line0_display
+     51                Right_Turn(7000);
+   \   000074   3C40581B     MOV.W   #0x1b58, R12
+   \   000078   ........     CALLA   #Right_Turn
+     52                if (wait > 930) {
+   \   00007C   B290A303.... CMP.W   #0x3a3, &wait
+   \   000082   0738         JL      ??Follow_Line_Circle_27
+     53                  Forward_Off();
+   \   000084   ........     CALLA   #Forward_Off
+     54                  wait = ZERO;
+   \   000088   8243....     MOV.W   #0x0, &wait
+     55                  FOLLOW_STATE = INIT_PAUSE;
+   \   00008C   A243....     MOV.W   #0x2, &FOLLOW_STATE
+   \   000090   1001         RETA
+     56                } else {
+     57                  wait++;
+   \                     ??Follow_Line_Circle_27:
+   \   000092   9253....     ADD.W   #0x1, &wait
+     58                }
+     59                break;
+   \   000096   1001         RETA
+     60              case INIT_PAUSE:
+     61                // Pause using variable
+     62                P5OUT |= IR_LED;
+   \                     ??Follow_Line_Circle_14:
+   \   000098   F2D010004202 BIS.B   #0x10, &0x242
+     63                if (wait > PAUSE_TIME) {
+   \   00009E   B290C509.... CMP.W   #0x9c5, &wait
+   \   0000A4   0638         JL      ??Follow_Line_Circle_28
+     64                  wait = ZERO;
+   \   0000A6   8243....     MOV.W   #0x0, &wait
+     65                  FOLLOW_STATE = INTERCEPT;
+   \   0000AA   B2400300.... MOV.W   #0x3, &FOLLOW_STATE
+   \   0000B0   1001         RETA
+     66                } else {
+     67                  wait++;
+   \                     ??Follow_Line_Circle_28:
+   \   0000B2   9253....     ADD.W   #0x1, &wait
+     68                }
+     69                break;
+   \   0000B6   1001         RETA
+     70              case INTERCEPT:
+     71                line0_display("INTERCEPT ");
+   \                     ??Follow_Line_Circle_15:
+   \   0000B8   3C40....     MOV.W   #`?<Constant "INTERCEPT ">`, R12
+   \   0000BC   ........     CALLA   #line0_display
+     72                Forward_On((STRAIGHT_FORWARD_L), (STRAIGHT_FORWARD_R)); // 20, 15 --> left, right
+   \   0000C0   3D40204E     MOV.W   #0x4e20, R13
+   \   0000C4   3C40983A     MOV.W   #0x3a98, R12
+   \   0000C8   ........     CALLA   #Forward_On
+     73                if (line_pos == ON_BLACK) {
+   \   0000CC   B2900300.... CMP.W   #0x3, &line_pos
+   \   0000D2   9C20         JNE     ??Follow_Line_Circle_0
+     74                  Forward_Off();
+   \   0000D4   ........     CALLA   #Forward_Off
+     75                  FOLLOW_STATE = PAUSE_ONE;
+   \   0000D8   A242....     MOV.W   #0x4, &FOLLOW_STATE
+     76                }
+     77                break;
+   \   0000DC   1001         RETA
+     78              case PAUSE_ONE:
+     79                line0_display("  PAUSE   ");
+   \                     ??Follow_Line_Circle_16:
+   \   0000DE   3C40....     MOV.W   #`?<Constant "  PAUSE   ">`, R12
+   \   0000E2   ........     CALLA   #line0_display
+     80                // Pause using variable
+     81                if (wait > (PAUSE_TIME + 200)) {
+   \   0000E6   B2908D0A.... CMP.W   #0xa8d, &wait
+   \   0000EC   0638         JL      ??Follow_Line_Circle_29
+     82                  wait = ZERO;
+   \   0000EE   8243....     MOV.W   #0x0, &wait
+     83                  FOLLOW_STATE = TURN;
+   \   0000F2   B2400500.... MOV.W   #0x5, &FOLLOW_STATE
+   \   0000F8   1001         RETA
+     84                } else {
+     85                  wait++;
+   \                     ??Follow_Line_Circle_29:
+   \   0000FA   9253....     ADD.W   #0x1, &wait
+     86                }
+     87                break;
+   \   0000FE   1001         RETA
+     88              case TURN:
+     89                line0_display("   TURN   ");
+   \                     ??Follow_Line_Circle_17:
+   \   000100   3C40....     MOV.W   #`?<Constant "   TURN   ">`, R12
+   \   000104   ........     CALLA   #line0_display
+     90                // Turn car to the left until line_pos = 1
+     91                if (line_pos == RIGHT) {
+   \   000108   9293....     CMP.W   #0x1, &line_pos
+   \   00010C   0620         JNE     ??Follow_Line_Circle_30
+     92                  Forward_Off();
+   \   00010E   ........     CALLA   #Forward_Off
+     93                  FOLLOW_STATE = PAUSE_TWO;
+   \   000112   B2400600.... MOV.W   #0x6, &FOLLOW_STATE
+   \   000118   1001         RETA
+     94                } else {
+     95                  Left_Turn(8000); // 8000
+   \                     ??Follow_Line_Circle_30:
+   \   00011A   3C40401F     MOV.W   #0x1f40, R12
+   \   00011E   ........     BRA     #Left_Turn
+     96                }
+     97                break;
+     98              case PAUSE_TWO:
+     99                line0_display("  PAUSE2  ");
+   \                     ??Follow_Line_Circle_18:
+   \   000122   3C40....     MOV.W   #`?<Constant "  PAUSE2  ">`, R12
+   \   000126   ........     CALLA   #line0_display
+    100                // Pause using variable
+    101                if (wait > PAUSE_TIME) { // 2500
+   \   00012A   B290C509.... CMP.W   #0x9c5, &wait
+   \   000130   0638         JL      ??Follow_Line_Circle_31
+    102                  wait = ZERO;
+   \   000132   8243....     MOV.W   #0x0, &wait
+    103                  FOLLOW_STATE = LEADING_LINE;
+   \   000136   B2400700.... MOV.W   #0x7, &FOLLOW_STATE
+   \   00013C   1001         RETA
+    104                } else {
+    105                  wait++;
+   \                     ??Follow_Line_Circle_31:
+   \   00013E   9253....     ADD.W   #0x1, &wait
+    106                }
+    107                break;
+   \   000142   1001         RETA
+    108              case LEADING_LINE:
+    109                line0_display("BL TRAVEL ");
+   \                     ??Follow_Line_Circle_19:
+   \   000144   3C40....     MOV.W   #`?<Constant "BL TRAVEL ">`, R12
+   \   000148   ........     CALLA   #line0_display
+    110                circle_routine();
+   \   00014C   ........     CALLA   #circle_routine
+    111                // use timer to exit
+    112                if (wait > (PAUSE_TIME - 200)) {
+   \   000150   B290FD08.... CMP.W   #0x8fd, &wait
+   \   000156   0738         JL      ??Follow_Line_Circle_32
+    113                  wait = ZERO;
+   \   000158   8243....     MOV.W   #0x0, &wait
+    114                  Forward_Off();
+   \   00015C   ........     CALLA   #Forward_Off
+    115                  FOLLOW_STATE = PAUSE3;
+   \   000160   B242....     MOV.W   #0x8, &FOLLOW_STATE
+   \   000164   1001         RETA
+    116                } else {
+    117                  wait++;
+   \                     ??Follow_Line_Circle_32:
+   \   000166   9253....     ADD.W   #0x1, &wait
+    118                }
+    119                break;
+   \   00016A   1001         RETA
+    120              case PAUSE3:
+    121                line0_display("  PAUSE3  ");
+   \                     ??Follow_Line_Circle_20:
+   \   00016C   3C40....     MOV.W   #`?<Constant "  PAUSE3  ">`, R12
+   \   000170   ........     CALLA   #line0_display
+    122                // Pause using variable
+    123                if (wait > PAUSE_TIME) {
+   \   000174   B290C509.... CMP.W   #0x9c5, &wait
+   \   00017A   0638         JL      ??Follow_Line_Circle_33
+    124                  wait = ZERO;
+   \   00017C   8243....     MOV.W   #0x0, &wait
+    125                  FOLLOW_STATE = TURN2;
+   \   000180   B2400900.... MOV.W   #0x9, &FOLLOW_STATE
+   \   000186   1001         RETA
+    126                } else {
+    127                  wait++;
+   \                     ??Follow_Line_Circle_33:
+   \   000188   9253....     ADD.W   #0x1, &wait
+    128                }
+    129                break;
+   \   00018C   1001         RETA
+    130              case TURN2: 
+    131                line0_display("   TURN2   ");
+   \                     ??Follow_Line_Circle_21:
+   \   00018E   3C40....     MOV.W   #`?<Constant "   TURN2   ">`, R12
+   \   000192   ........     CALLA   #line0_display
+    132                if (line_pos == LEFT) {
+   \   000196   A293....     CMP.W   #0x2, &line_pos
+   \   00019A   0620         JNE     ??Follow_Line_Circle_34
+    133                  Forward_Off();
+   \   00019C   ........     CALLA   #Forward_Off
+    134                  FOLLOW_STATE = CIRCLE;
+   \   0001A0   B2400A00.... MOV.W   #0xa, &FOLLOW_STATE
+   \   0001A6   1001         RETA
+    135                } else {
+    136                  Right_Turn(7500);
+   \                     ??Follow_Line_Circle_34:
+   \   0001A8   3C404C1D     MOV.W   #0x1d4c, R12
+   \   0001AC   ........     BRA     #Right_Turn
+    137                }
+    138                break;
+    139              case CIRCLE:
+    140                line0_display("BL CIRCLE ");
+   \                     ??Follow_Line_Circle_22:
+   \   0001B0   3C40....     MOV.W   #`?<Constant "BL CIRCLE ">`, R12
+   \   0001B4   ........     CALLA   #line0_display
+    141                // activate a timer once you enter this state
+    142                //circle_activated = INDEX_ONE;
+    143                clock_circle_routine();
+   \   0001B8   ........     CALLA   #clock_circle_routine
+    144                // if command is detected, exit circle
+    145                if (command[INDEX_THIRTEEN] == 'S') { // A button on xbox
+   \   0001BC   F2905300.... CMP.B   #0x53, &command + 13
+   \   0001C2   2420         JNE     ??Follow_Line_Circle_0
+    146                  FOLLOW_STATE = END;
+   \   0001C4   B2400C00.... MOV.W   #0xc, &FOLLOW_STATE
+    147                }
+    148                break;
+   \   0001CA   1001         RETA
+    149              case END:
+    150                line0_display("BL STOP   ");
+   \                     ??Follow_Line_Circle_24:
+   \   0001CC   3C40....     MOV.W   #`?<Constant "BL STOP   ">`, R12
+   \   0001D0   ........     CALLA   #line0_display
+    151                Forward_On(STRAIGHT_FORWARD_L, STRAIGHT_FORWARD_R);
+   \   0001D4   3D40204E     MOV.W   #0x4e20, R13
+   \   0001D8   3C40983A     MOV.W   #0x3a98, R12
+   \   0001DC   ........     CALLA   #Forward_On
+    152                if (wait > PAUSE_TIME) {
+   \   0001E0   B290C509.... CMP.W   #0x9c5, &wait
+   \   0001E6   0638         JL      ??Follow_Line_Circle_35
+    153                  wait = ZERO;
+   \   0001E8   8243....     MOV.W   #0x0, &wait
+    154                  FOLLOW_STATE = RETURN;
+   \   0001EC   B2400B00.... MOV.W   #0xb, &FOLLOW_STATE
+   \   0001F2   023C         JMP     ??Follow_Line_Circle_12
+    155                } else {
+    156                  wait++;
+   \                     ??Follow_Line_Circle_35:
+   \   0001F4   9253....     ADD.W   #0x1, &wait
+    157                }
+    158                P5OUT &= ~IR_LED;
+   \                     ??Follow_Line_Circle_12:
+   \   0001F8   F2C010004202 BIC.B   #0x10, &0x242
+    159                break;
+   \   0001FE   1001         RETA
+    160              case RETURN:
+    161                line0_display("WE MADE IT");
+   \                     ??Follow_Line_Circle_23:
+   \   000200   3C40....     MOV.W   #`?<Constant "WE MADE IT">`, R12
+   \   000204   ........     CALLA   #line0_display
+    162                Forward_Off();
+   \   000208   ........     CALLA   #Forward_Off
+    163                break;
+    164              default: 
+    165                break;
+    166            }
+    167          }
+   \                     ??Follow_Line_Circle_0:
+   \   00020C   1001         RETA
+   \   00020E                REQUIRE _A_PCOUT_L
+    168          
+
+   \                                 In  segment CODE, align 2
+    169          void circle_routine() {
+   \                     circle_routine:
+    170            if (line_pos == RIGHT || line_pos == ON_BLACK) {
+   \   000000   9293....     CMP.W   #0x1, &line_pos
+   \   000004   0424         JEQ     ??circle_routine_0
+   \   000006   B2900300.... CMP.W   #0x3, &line_pos
+   \   00000C   0620         JNE     ??circle_routine_1
+    171              Forward_On(SLOW_STRAIGHT_L, SLOW_STRAIGHT_R);
+   \                     ??circle_routine_0:
+   \   00000E   3D40401F     MOV.W   #0x1f40, R13
+   \   000012   3C40E02E     MOV.W   #0x2ee0, R12
+   \   000016   ........     BRA     #Forward_On
+    172            } else if (line_pos == ON_WHITE) {
+   \                     ??circle_routine_1:
+   \   00001A   8293....     CMP.W   #0x0, &line_pos
+   \   00001E   0420         JNE     ??circle_routine_2
+    173              Left_Turn(8000);
+   \   000020   3C40401F     MOV.W   #0x1f40, R12
+   \   000024   ........     CALLA   #Left_Turn
+    174            }
+    175          }
+   \                     ??circle_routine_2:
+   \   000028   1001         RETA
+    176          
+
+   \                                 In  segment CODE, align 2
+    177          void clock_circle_routine() {
+   \                     clock_circle_routine:
+    178            if (line_pos == LEFT || line_pos == ON_BLACK) {
+   \   000000   A293....     CMP.W   #0x2, &line_pos
+   \   000004   0424         JEQ     ??clock_circle_routine_0
+   \   000006   B2900300.... CMP.W   #0x3, &line_pos
+   \   00000C   0620         JNE     ??clock_circle_routine_1
+    179              Forward_On((STRAIGHT_FORWARD_L + 3000), (STRAIGHT_FORWARD_R - 4000));
+   \                     ??clock_circle_routine_0:
+   \   00000E   3D40803E     MOV.W   #0x3e80, R13
+   \   000012   3C405046     MOV.W   #0x4650, R12
+   \   000016   ........     BRA     #Forward_On
+    180            } else if (line_pos == ON_WHITE) {
+   \                     ??clock_circle_routine_1:
+   \   00001A   8293....     CMP.W   #0x0, &line_pos
+   \   00001E   0420         JNE     ??clock_circle_routine_2
+    181              Right_Turn(7000);
+   \   000020   3C40581B     MOV.W   #0x1b58, R12
+   \   000024   ........     CALLA   #Right_Turn
+    182            }
+    183          }
+   \                     ??clock_circle_routine_2:
+   \   000028   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for FOLLOW_STATE>`:
+   \   000000   0100         DC16 1
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " BL START ">`:
+   \   000000   20424C205354 DC8 " BL START "
+   \            4152542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "INTERCEPT ">`:
+   \   000000   494E54455243 DC8 "INTERCEPT "
+   \            4550542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  PAUSE   ">`:
+   \   000000   202050415553 DC8 "  PAUSE   "
+   \            4520202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "   TURN   ">`:
+   \   000000   202020545552 DC8 "   TURN   "
+   \            4E20202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  PAUSE2  ">`:
+   \   000000   202050415553 DC8 "  PAUSE2  "
+   \            4532202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BL TRAVEL ">`:
+   \   000000   424C20545241 DC8 "BL TRAVEL "
+   \            56454C2000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  PAUSE3  ">`:
+   \   000000   202050415553 DC8 "  PAUSE3  "
+   \            4533202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "   TURN2   ">`:
+   \   000000   202020545552 DC8 "   TURN2   "
+   \            4E3220202000
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BL CIRCLE ">`:
+   \   000000   424C20434952 DC8 "BL CIRCLE "
+   \            434C452000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "BL STOP   ">`:
+   \   000000   424C2053544F DC8 "BL STOP   "
+   \            5020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "WE MADE IT">`:
+   \   000000   5745204D4144 DC8 "WE MADE IT"
+   \            4520495400  
+    184          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Follow_Line_Circle
+        4   -> Forward_Off
+        4   -> Forward_On
+        0   -> Left_Turn
+        0   -> Right_Turn
+        4   -> Right_Turn
+        4   -> circle_routine
+        4   -> clock_circle_routine
+        4   -> line0_display
+      4   circle_routine
+        0   -> Forward_On
+        4   -> Left_Turn
+      4   clock_circle_routine
+        0   -> Forward_On
+        4   -> Right_Turn
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "   TURN   ">
+      12  ?<Constant "   TURN2   ">
+      11  ?<Constant "  PAUSE   ">
+      11  ?<Constant "  PAUSE2  ">
+      11  ?<Constant "  PAUSE3  ">
+      11  ?<Constant " BL START ">
+      11  ?<Constant "BL CIRCLE ">
+      11  ?<Constant "BL STOP   ">
+      11  ?<Constant "BL TRAVEL ">
+      11  ?<Constant "INTERCEPT ">
+      11  ?<Constant "WE MADE IT">
+       2  ?<Initializer for FOLLOW_STATE>
+       2  CIRC_STATE
+       2  FOLLOW_STATE
+     526  Follow_Line_Circle
+       2  _A_PCOUT_L
+      42  circle_routine
+      42  clock_circle_routine
+       2  max_time
+       2  wait
+
+ 
+ 610 bytes in segment CODE
+   2 bytes in segment DATA16_AN
+ 122 bytes in segment DATA16_C
+   2 bytes in segment DATA16_I
+   2 bytes in segment DATA16_ID
+   6 bytes in segment DATA16_Z
+ 
+ 610 bytes of CODE  memory
+ 124 bytes of CONST memory
+   8 bytes of DATA  memory (+ 2 bytes shared)
+
+Errors: none
+Warnings: none

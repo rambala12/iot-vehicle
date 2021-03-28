@@ -1,0 +1,208 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Mar/2019  17:28:22
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\project_routine.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWA388.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\project_routine.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\Debug\List\project_routine.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        07\Debug\Obj\project_routine.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 07\project_routine.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the interrupt initialization for the timer B0 port
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include "macros.h"
+     12          #include "functions.h"
+     13          #include "msp430.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     17          extern char *display[DISPLAY_SIZE];
+     18          extern volatile unsigned char update_display;
+     19          extern volatile unsigned int update_display_count;
+     20          extern volatile unsigned char display_changed;
+     21          extern unsigned int move_count;
+     22          
+     23          // void Project_Five() {
+     24          // 	// wait for one second
+     25          // 	if (move_count == 0) {
+     26          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     27          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     28          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     29          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     30          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+     31          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     32          //   		display_changed = 1;
+     33          
+     34          // 		Forward_Off();
+     35          // 		Reverse_Off();
+     36          // 	}
+     37          // 	// when 2 seconds have passed, move forward
+     38          // 	if (move_count == 2) {
+     39          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     40          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     41          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     42          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     43          //   		strcpy(display_line[DL_SEC_INDEX], "  FORWARD  ");
+     44          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     45          //   		display_changed = 1;
+     46          
+     47          // 		Forward_On();
+     48          // 	}
+     49          // 	// pause for one second
+     50          // 	if (move_count == 3) {
+     51          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     52          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     53          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     54          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     55          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+     56          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     57          //   		display_changed = 1;
+     58          
+     59          // 		Forward_Off();
+     60          // 	}
+     61          // 	// reverse for two seconds
+     62          // 	if (move_count == 4) {
+     63          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     64          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     65          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     66          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     67          //   		strcpy(display_line[DL_SEC_INDEX], "  REVERSE  ");
+     68          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     69          //   		display_changed = 1;
+     70          
+     71          //   		Reverse_On();
+     72          // 	}
+     73          // 	// pause for one second
+     74          // 	if (move_count == 6) {
+     75          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     76          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     77          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     78          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     79          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+     80          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     81          //   		display_changed = 1;
+     82          
+     83          //   		Reverse_Off();
+     84          // 	}
+     85          // 	// travel forward for one second
+     86          // 	if (move_count == 7) {
+     87          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     88          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     89          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     90          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     91          //   		strcpy(display_line[DL_SEC_INDEX], "  FORWARD  ");
+     92          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     93          //   		display_changed = 1;
+     94          
+     95          //   		Forward_On();
+     96          // 	}
+     97          // 	// pause for one second
+     98          // 	if (move_count == 8) {
+     99          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+    100          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+    101          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+    102          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+    103          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+    104          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    105          //   		display_changed = 1;
+    106          
+    107          //   		Forward_Off();
+    108          // 	}
+    109          // 	// spin clockwise for 3 seconds
+    110          // 	if (move_count == 9) {
+    111          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+    112          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+    113          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+    114          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+    115          //   		strcpy(display_line[DL_SEC_INDEX], " CLOCKWISE");
+    116          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    117          //   		display_changed = 1;
+    118          
+    119          //   		clockwise();
+    120          // 	}
+    121          // 	// pause for 2 seconds
+    122          // 	if (move_count == 12) {
+    123          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+    124          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+    125          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+    126          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+    127          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+    128          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    129          //   		display_changed = 1;
+    130          
+    131          //   		Forward_Off();
+    132          //   		Reverse_Off();
+    133          // 	}
+    134          // 	// counter clockwise for 3 seconds
+    135          // 	if (move_count == 14) {
+    136          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+    137          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+    138          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+    139          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+    140          //   		strcpy(display_line[DL_SEC_INDEX], " ANTICLOC ");
+    141          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    142          //   		display_changed = 1;
+    143          
+    144          //   		counter_clockwise();
+    145          // 	}
+    146          // 	// pause for two seconds
+    147          // 	if (move_count == 16) {
+    148          // 		strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+    149          //   		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+    150          //   		strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+    151          //   		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+    152          //   		strcpy(display_line[DL_SEC_INDEX], "   STOP   ");
+    153          //   		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    154          //   		display_changed = 1;
+    155          
+    156          //   		Forward_Off();
+    157          //   		Reverse_Off();
+    158          // 	}
+    159          // }
+
+
+ 
+
+ 
+
+
+Errors: none
+Warnings: none

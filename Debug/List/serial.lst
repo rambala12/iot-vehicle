@@ -1,0 +1,378 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:14
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\serial.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWB602.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\serial.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\serial.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\serial.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\serial.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions needed for serial communications 
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59a
+   \   union <unnamed> _A_UCA1IE_L
+   \                     _A_UCA1IE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59c
+   \   union <unnamed> _A_UCA1IFG_L
+   \                     _A_UCA1IFG_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16          
+     17          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     18          extern char *display[DISPLAY_SIZE];
+     19          extern volatile unsigned char update_display;
+     20          extern volatile unsigned int update_display_count;
+     21          extern volatile unsigned char display_changed;
+     22          extern volatile int pause_activated;
+     23          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          int COM_STATE = ZERO;
+   \                     COM_STATE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          extern volatile int serial_state = ZERO; // zero = wait, 1 = received
+   \                     serial_state:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          extern int serial_count = ZERO; // use for waiting for two seconds
+   \                     serial_count:
+   \   000000                DS8 2
+     27          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     28          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          char message[SMALL_RING_SIZE];
+   \                     message:
+   \   000000                DS8 64
+     30          extern unsigned int UCA1_index;
+     31          extern unsigned int UCA0_index;
+     32          
+     33          
+
+   \                                 In  segment CODE, align 2
+     34          void out_character(char character) { 
+   \                     out_character:
+   \                     ??out_character_0:
+     35          	//------------------------------------------------------------------------------ 
+     36          	// The while loop will stall as long as the Flag is not set [port is busy]
+     37          	while (!(UCA1IFG & UCTXIFG)) {  // USCI_A1 TX buffer ready? 
+   \   000000   A2B39C05     BIT.W   #0x2, &0x59c
+   \   000004   042C         JC      ??out_character_1
+     38          		UCA1TXBUF = character;
+   \   000006   4C4C         MOV.B   R12, R12
+   \   000008   824C8E05     MOV.W   R12, &0x58e
+   \   00000C   F93F         JMP     ??out_character_0
+     39          	}
+     40          	//------------------------------------------------------------------------------ 
+     41          }
+   \                     ??out_character_1:
+   \   00000E   1001         RETA
+   \   000010                REQUIRE _A_UCA1TXBUF_L
+   \   000010                REQUIRE _A_UCA1IFG_L
+     42          
+
+   \                                 In  segment CODE, align 2
+     43          void Get_Commands() {
+   \                     Get_Commands:
+   \   000000   0A12         PUSH.W  R10
+     44          	switch(COM_STATE) {
+   \   000002   1F42....     MOV.W   &COM_STATE, R15
+   \   000006   0F83         SUB.W   #0x0, R15
+   \   000008   0724         JEQ     ??Get_Commands_4
+   \   00000A   1F83         SUB.W   #0x1, R15
+   \   00000C   1624         JEQ     ??Get_Commands_5
+   \   00000E   1F83         SUB.W   #0x1, R15
+   \   000010   3324         JEQ     ??Get_Commands_6
+   \   000012   1F83         SUB.W   #0x1, R15
+   \   000014   4824         JEQ     ??Get_Commands_7
+   \   000016   833C         JMP     ??Get_Commands_1
+     45          		case WAIT:
+     46          			strcpy(display_line[DL_ZERO_INDEX], "WAITING...");
+   \                     ??Get_Commands_4:
+   \   000018   3D40....     MOV.W   #`?<Constant "WAITING...">`, R13
+   \   00001C   3C40....     MOV.W   #display_line, R12
+   \   000020   ........     CALLA   #strcpy
+     47            		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   000024   0D43         MOV.W   #0x0, R13
+   \   000026   ........     CALLA   #update_string
+     48            		display_changed = ONE;
+   \   00002A   D243....     MOV.B   #0x1, &display_changed
+     49            		if (serial_state) {
+   \   00002E   8293....     CMP.W   #0x0, &serial_state
+   \   000032   7524         JEQ     ??Get_Commands_1
+     50            			COM_STATE = RECEIVE;
+   \   000034   9243....     MOV.W   #0x1, &COM_STATE
+     51            		}
+     52          			break;
+   \   000038   723C         JMP     ??Get_Commands_1
+     53          		case RECEIVE:
+     54          			serial_state = INDEX_TWO;
+   \                     ??Get_Commands_5:
+   \   00003A   A243....     MOV.W   #0x2, &serial_state
+     55          			strcpy(display_line[DL_ZERO_INDEX], " RECEIVED ");
+   \   00003E   3D40....     MOV.W   #`?<Constant " RECEIVED ">`, R13
+   \   000042   3C40....     MOV.W   #display_line, R12
+   \   000046   ........     CALLA   #strcpy
+     56            		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   00004A   0D43         MOV.W   #0x0, R13
+   \   00004C   ........     CALLA   #update_string
+     57            		display_changed = ONE;
+   \   000050   D243....     MOV.B   #0x1, &display_changed
+     58          
+     59            		serial_state = INDEX_TWO;
+   \   000054   A243....     MOV.W   #0x2, &serial_state
+     60          			strcpy(display_line[DL_FIRST_INDEX], "          ");
+   \   000058   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   00005C   3C40....     MOV.W   #display_line + 11, R12
+   \   000060   ........     CALLA   #strcpy
+     61            		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+   \   000064   1D43         MOV.W   #0x1, R13
+   \   000066   3C40....     MOV.W   #display_line + 11, R12
+   \   00006A   ........     CALLA   #update_string
+     62            		display_changed = ONE;
+   \   00006E   D243....     MOV.B   #0x1, &display_changed
+     63          
+     64            		// copy message into message[]
+     65            	// 	int i;
+     66            	// 	for (i = 0; i < SMALL_RING_SIZE; i++) {
+     67            	// 	  message[i] = USB_Char_Rx[i];
+     68            	// 	}
+     69          
+     70          			// strcpy(display_line[DL_FIRST_INDEX], message);
+     71            	// 	update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX); 
+     72            	// 	display_changed = ONE; 		
+     73            		COM_STATE = PAUSE;
+   \   000072   A243....     MOV.W   #0x2, &COM_STATE
+     74          			break;
+   \   000076   533C         JMP     ??Get_Commands_1
+     75          		case PAUSE:
+     76          			// use timer to pause for two seconds
+     77          			// if two seconds have passed:
+     78          			pause_activated = INDEX_ONE;
+   \                     ??Get_Commands_6:
+   \   000078   9243....     MOV.W   #0x1, &pause_activated
+     79          
+     80          			if (serial_count == INDEX_TWO) {
+   \   00007C   A293....     CMP.W   #0x2, &serial_count
+   \   000080   4E20         JNE     ??Get_Commands_1
+     81          				serial_count = ZERO;
+   \   000082   8243....     MOV.W   #0x0, &serial_count
+     82          				if (serial_state == INDEX_TWO) { // if previous state was RECEIVE
+   \   000086   A293....     CMP.W   #0x2, &serial_state
+   \   00008A   0420         JNE     ??Get_Commands_8
+     83          					COM_STATE = TRANSMIT;
+   \   00008C   B2400300.... MOV.W   #0x3, &COM_STATE
+   \   000092   453C         JMP     ??Get_Commands_1
+     84          				} else if (serial_state == INDEX_THREE) { // if previous state was TRANSMIT
+   \                     ??Get_Commands_8:
+   \   000094   B2900300.... CMP.W   #0x3, &serial_state
+   \   00009A   4120         JNE     ??Get_Commands_1
+     85          					serial_state = ZERO;
+   \   00009C   8243....     MOV.W   #0x0, &serial_state
+     86          					COM_STATE = WAIT;
+   \   0000A0   8243....     MOV.W   #0x0, &COM_STATE
+     87          				}
+     88          			}
+     89          			break;
+   \   0000A4   3C3C         JMP     ??Get_Commands_1
+     90          		case TRANSMIT:
+     91          	    UCA1_index = ZERO;
+   \                     ??Get_Commands_7:
+   \   0000A6   8243....     MOV.W   #0x0, &UCA1_index
+     92              	UCA1IE |= UCTXIE;
+   \   0000AA   A2D39A05     BIS.W   #0x2, &0x59a
+     93              	UCA1TXBUF = IOT_Char_Rx[ZERO];
+   \   0000AE   5F42....     MOV.B   &IOT_Char_Rx, R15
+   \   0000B2   4F4F         MOV.B   R15, R15
+   \   0000B4   824F8E05     MOV.W   R15, &0x58e
+     94          
+     95          			serial_state = INDEX_THREE;
+   \   0000B8   B2400300.... MOV.W   #0x3, &serial_state
+     96          			strcpy(display_line[DL_ZERO_INDEX], " TRANSMIT ");
+   \   0000BE   3D40....     MOV.W   #`?<Constant " TRANSMIT ">`, R13
+   \   0000C2   3C40....     MOV.W   #display_line, R12
+   \   0000C6   ........     CALLA   #strcpy
+     97            		update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   0000CA   0D43         MOV.W   #0x0, R13
+   \   0000CC   ........     CALLA   #update_string
+     98            		display_changed = ONE;
+   \   0000D0   D243....     MOV.B   #0x1, &display_changed
+     99          
+    100          //!!!! 		/////// FIX !!!!! : CHECK in IOT_Char_Rx for where the dollar sign is
+    101            		// then go through and start from that index and copy into message[] array until '/r' is reached
+    102            		int i; 
+    103            		for (i = ZERO; i < SMALL_RING_SIZE; i++) {
+   \   0000D4   0A43         MOV.W   #0x0, R10
+   \                     ??Get_Commands_0:
+   \   0000D6   3A904000     CMP.W   #0x40, R10
+   \   0000DA   0534         JGE     ??Get_Commands_9
+    104            		  message[i] = IOT_Char_Rx[i];
+   \   0000DC   DA4A........ MOV.B   IOT_Char_Rx(R10), message(R10)
+    105            		}
+   \   0000E2   1A53         ADD.W   #0x1, R10
+   \   0000E4   F83F         JMP     ??Get_Commands_0
+    106          
+    107          			strcpy(display_line[DL_FIRST_INDEX], message);
+   \                     ??Get_Commands_9:
+   \   0000E6   3D40....     MOV.W   #message, R13
+   \   0000EA   3C40....     MOV.W   #display_line + 11, R12
+   \   0000EE   ........     CALLA   #strcpy
+    108            		update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX); 
+   \   0000F2   1D43         MOV.W   #0x1, R13
+   \   0000F4   3C40....     MOV.W   #display_line + 11, R12
+   \   0000F8   ........     CALLA   #update_string
+    109            		display_changed = ONE; 
+   \   0000FC   D243....     MOV.B   #0x1, &display_changed
+    110          
+    111            		strcpy(display_line[DL_SEC_INDEX], "          ");
+   \   000100   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000104   3C40....     MOV.W   #display_line + 22, R12
+   \   000108   ........     CALLA   #strcpy
+    112            		update_string(display_line[DL_SEC_INDEX], DL_SEC_INDEX); 
+   \   00010C   2D43         MOV.W   #0x2, R13
+   \   00010E   3C40....     MOV.W   #display_line + 22, R12
+   \   000112   ........     CALLA   #update_string
+    113            		display_changed = ONE; 	
+   \   000116   D243....     MOV.B   #0x1, &display_changed
+    114          
+    115            		// display command on the second line of display
+    116            		// for (i = 0; i < SMALL_RING_SIZE; i++) {
+    117            		//   out_character(USB_Char_Rx[i]);
+    118            		// }
+    119            		
+    120            		COM_STATE = PAUSE;
+   \   00011A   A243....     MOV.W   #0x2, &COM_STATE
+    121          			break;
+    122          		default: break;
+    123          	}
+    124          }
+   \                     ??Get_Commands_1:
+   \   00011E   3A41         POP.W   R10
+   \   000120   1001         RETA
+   \   000122                REQUIRE _A_UCA1IE_L
+   \   000122                REQUIRE _A_UCA1TXBUF_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "WAITING...">`:
+   \   000000   57414954494E DC8 "WAITING..."
+   \            472E2E2E00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " RECEIVED ">`:
+   \   000000   205245434549 DC8 " RECEIVED "
+   \            5645442000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " TRANSMIT ">`:
+   \   000000   205452414E53 DC8 " TRANSMIT "
+   \            4D49542000  
+    125          
+    126          
+    127          
+    128          
+    129          
+    130          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   Get_Commands
+        6   -> strcpy
+        6   -> update_string
+      4   out_character
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      11  ?<Constant " RECEIVED ">
+      11  ?<Constant " TRANSMIT ">
+      11  ?<Constant "WAITING...">
+       2  COM_STATE
+     290  Get_Commands
+       2  _A_UCA1IE_L
+       2  _A_UCA1IFG_L
+       2  _A_UCA1TXBUF_L
+      64  message
+      16  out_character
+       2  serial_count
+       2  serial_state
+
+ 
+ 306 bytes in segment CODE
+   6 bytes in segment DATA16_AN
+  44 bytes in segment DATA16_C
+  70 bytes in segment DATA16_Z
+ 
+ 306 bytes of CODE  memory
+  44 bytes of CONST memory
+  70 bytes of DATA  memory (+ 6 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,133 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\init.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWADA9.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\init.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\init.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\init.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\init.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file initializes the board    
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+     12          #include "macros.h"
+     13          
+     14          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     15          extern char *display[DISPLAY_SIZE];
+     16          extern volatile unsigned char update_display;
+     17          extern volatile unsigned int update_display_count;
+     18          
+
+   \                                 In  segment CODE, align 2
+     19          void Init_Conditions(void){
+   \                     Init_Conditions:
+   \   000000   0A12         PUSH.W  R10
+     20          //------------------------------------------------------------------------------
+     21            int i;
+     22          
+     23            for(i=INIT_VALUE;i<SICKO_MODE;i++){
+   \   000002   0A43         MOV.W   #0x0, R10
+   \                     ??Init_Conditions_0:
+   \   000004   3A900B00     CMP.W   #0xb, R10
+   \   000008   0A34         JGE     ??Init_Conditions_1
+     24              display_line[INIT_VALUE][i] = RESET_STATE;
+   \   00000A   CA43....     MOV.B   #0x0, display_line(R10)
+     25              display_line[INIT_ONE][i] = RESET_STATE;
+   \   00000E   CA43....     MOV.B   #0x0, display_line + 11(R10)
+     26              display_line[INIT_TWO][i] = RESET_STATE;
+   \   000012   CA43....     MOV.B   #0x0, display_line + 22(R10)
+     27              display_line[ST_INIT][i] = RESET_STATE;
+   \   000016   CA43....     MOV.B   #0x0, display_line + 33(R10)
+     28            }
+   \   00001A   1A53         ADD.W   #0x1, R10
+   \   00001C   F33F         JMP     ??Init_Conditions_0
+     29            display_line[INIT_VALUE][DISP_VAL_2] = INIT_VALUE;
+   \                     ??Init_Conditions_1:
+   \   00001E   C243....     MOV.B   #0x0, &display_line + 10
+     30            display_line[INIT_ONE][DISP_VAL_2] = INIT_VALUE;
+   \   000022   C243....     MOV.B   #0x0, &display_line + 21
+     31            display_line[INIT_TWO][DISP_VAL_2] = INIT_VALUE;
+   \   000026   C243....     MOV.B   #0x0, &display_line + 32
+     32            display_line[ST_INIT][DISP_VAL_2] = INIT_VALUE;
+   \   00002A   C243....     MOV.B   #0x0, &display_line + 43
+     33          
+     34            display[INIT_VALUE] = &display_line[INIT_VALUE][INIT_VALUE];
+   \   00002E   B240........ MOV.W   #display_line, &display
+     35            display[INIT_ONE] = &display_line[INIT_ONE][INIT_VALUE];
+   \   000034   B240........ MOV.W   #display_line + 11, &display + 2
+     36            display[INIT_TWO] = &display_line[INIT_TWO][INIT_VALUE];
+   \   00003A   B240........ MOV.W   #display_line + 22, &display + 4
+     37            display[ST_INIT] = &display_line[ST_INIT][INIT_VALUE];
+   \   000040   B240........ MOV.W   #display_line + 33, &display + 6
+     38            update_display = INIT_VALUE;
+   \   000046   C243....     MOV.B   #0x0, &update_display
+     39            update_display_count = INIT_VALUE;
+   \   00004A   8243....     MOV.W   #0x0, &update_display_count
+     40          // Interrupts are disabled by default, enable them.
+     41            enable_interrupts();
+   \   00004E   ........     CALLA   #enable_interrupts
+     42          //------------------------------------------------------------------------------
+     43          }
+   \   000052   3A41         POP.W   R10
+   \   000054   1001         RETA
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   Init_Conditions
+        6   -> enable_interrupts
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      86  Init_Conditions
+
+ 
+ 86 bytes in segment CODE
+ 
+ 86 bytes of CODE memory
+
+Errors: none
+Warnings: none

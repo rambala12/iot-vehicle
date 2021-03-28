@@ -1,0 +1,628 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  16:46:32
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\iot.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EW601.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\iot.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\iot.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\iot.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\iot.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the functions needed for getting commands from iot module 
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include  "functions.h"
+     12          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x50a
+   \   union <unnamed> _A_UCA0STATW_L
+   \                     _A_UCA0STATW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+     13          #include <string.h>
+     14          #include "macros.h"
+     15          
+     16          
+     17          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     18          extern char *display[DISPLAY_SIZE];
+     19          extern volatile unsigned char update_display;
+     20          extern volatile unsigned int update_display_count;
+     21          extern volatile unsigned char display_changed;
+     22          
+     23          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     24          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+     25          //char message[SMALL_RING_SIZE];
+     26          extern unsigned int UCA1_index;
+     27          extern unsigned int UCA0_index;
+     28          // extern int start_copy_iot = ZERO;
+     29          // extern int start_copy_usb = ZERO;
+     30          // extern unsigned int temp2;
+     31          // extern unsigned int temp;
+     32          
+     33          // arrays for information
+     34          extern volatile char command[COMMAND_SIZE];
+     35          extern volatile char ip_address[IP_SIZE];
+     36          extern volatile int get_command;
+     37          extern volatile int command_start;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     38          extern volatile int ip_reached = ZERO;
+   \                     ip_reached:
+   \   000000                DS8 2
+     39          //char ssid[];
+     40          extern volatile int run_count;
+     41          extern volatile int command_activated;
+     42          extern volatile int transcribe_done;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          int COMMAND_STATE = ZERO;
+   \                     COMMAND_STATE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     44          int command_time = ZERO;
+   \                     command_time:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     45          char ip_copy[IP_SIZE] = {ZERO};
+   \                     ip_copy:
+   \   000000                DS8 30
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     46          char ip_copy2[IP_SIZE] = {ZERO};
+   \                     ip_copy2:
+   \   000000                DS8 30
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     47          int left_pwm_value = ZERO;
+   \                     left_pwm_value:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     48          int right_pwm_value = ZERO;
+   \                     right_pwm_value:
+   \   000000                DS8 2
+     49          extern volatile int initialize;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     50          extern int mat_counter = ZERO;
+   \                     mat_counter:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     51          int toggle_led = ZERO;
+   \                     toggle_led:
+   \   000000                DS8 2
+     52          
+     53          
+     54          
+     55          
+
+   \                                 In  segment CODE, align 2
+     56          void Display_IP() {
+   \                     Display_IP:
+   \   000000   1B15         PUSHM.W #0x2, R11
+     57          	lcd_4line();
+   \   000002   ........     CALLA   #lcd_4line
+     58          	int i; int j; j = ZERO;
+   \   000006   0B43         MOV.W   #0x0, R11
+     59          	// display IP address and ssid
+     60          	for (i = INDEX_ONE; i <= INDEX_SIX; i++) { //10.154
+   \   000008   1A43         MOV.W   #0x1, R10
+   \                     ??Display_IP_0:
+   \   00000A   3A900700     CMP.W   #0x7, R10
+   \   00000E   0634         JGE     ??Display_IP_2
+     61          		ip_copy[j] = ip_address[i];
+   \   000010   DB4A........ MOV.B   ip_address(R10), ip_copy(R11)
+     62          		j++;
+   \   000016   1B53         ADD.W   #0x1, R11
+     63          	}
+   \   000018   1A53         ADD.W   #0x1, R10
+   \   00001A   F73F         JMP     ??Display_IP_0
+     64          	ip_copy[INDEX_SIX] = ' ';
+   \                     ??Display_IP_2:
+   \   00001C   F2402000.... MOV.B   #0x20, &ip_copy + 6
+     65          	ip_copy[INDEX_SEVEN] = ' ';
+   \   000022   F2402000.... MOV.B   #0x20, &ip_copy + 7
+     66          	ip_copy[INDEX_EIGHT] = ' ';
+   \   000028   F2402000.... MOV.B   #0x20, &ip_copy + 8
+     67          	ip_copy[INDEX_NINE] = ' ';
+   \   00002E   F2402000.... MOV.B   #0x20, &ip_copy + 9
+     68          	ip_copy[INDEX_TEN] = ' ';
+   \   000034   F2402000.... MOV.B   #0x20, &ip_copy + 10
+     69          
+     70          	j = ZERO;
+   \   00003A   0B43         MOV.W   #0x0, R11
+     71          	for (i = INDEX_SEVEN; i < INDEX_FOURTEEN; i++) {
+   \   00003C   3A400700     MOV.W   #0x7, R10
+   \                     ??Display_IP_1:
+   \   000040   3A900E00     CMP.W   #0xe, R10
+   \   000044   0634         JGE     ??Display_IP_3
+     72          		ip_copy2[j] = ip_address[i];
+   \   000046   DB4A........ MOV.B   ip_address(R10), ip_copy2(R11)
+     73          		j++;
+   \   00004C   1B53         ADD.W   #0x1, R11
+     74          	}
+   \   00004E   1A53         ADD.W   #0x1, R10
+   \   000050   F73F         JMP     ??Display_IP_1
+     75          	ip_copy2[INDEX_SEVEN] = ' ';
+   \                     ??Display_IP_3:
+   \   000052   F2402000.... MOV.B   #0x20, &ip_copy2 + 7
+     76          	ip_copy2[INDEX_EIGHT] = ' ';
+   \   000058   F2402000.... MOV.B   #0x20, &ip_copy2 + 8
+     77          	ip_copy2[INDEX_NINE] = ' ';
+   \   00005E   F2402000.... MOV.B   #0x20, &ip_copy2 + 9
+     78          	ip_copy2[INDEX_TEN] = ' ';
+   \   000064   F2402000.... MOV.B   #0x20, &ip_copy2 + 10
+     79          
+     80          	line1_display(ip_copy);
+   \   00006A   3C40....     MOV.W   #ip_copy, R12
+   \   00006E   ........     CALLA   #line1_display
+     81          	line2_display(ip_copy2);
+   \   000072   3C40....     MOV.W   #ip_copy2, R12
+   \   000076   ........     CALLA   #line2_display
+     82          
+     83          	// Display clock
+     84          	// Display_Clock();
+     85          }
+   \   00007A   1A17         POPM.W  #0x2, R11
+   \   00007C   1001         RETA
+     86          
+     87          
+
+   \                                 In  segment CODE, align 2
+     88          void interpret_commands() {
+   \                     interpret_commands:
+     89          	lcd_BIG_mid();
+   \   000000   ........     CALLA   #lcd_BIG_mid
+     90          	// command for mat: $[4 digit pin][command][time]
+     91          	// run_count is timer
+     92          	// command_activated
+     93          
+     94          	// get the time command indicates for movement
+     95          	switch (COMMAND_STATE) {
+   \   000004   1F42....     MOV.W   &COMMAND_STATE, R15
+   \   000008   0F83         SUB.W   #0x0, R15
+   \   00000A   0324         JEQ     ??interpret_commands_6
+   \   00000C   1F83         SUB.W   #0x1, R15
+   \   00000E   B624         JEQ     ??interpret_commands_7
+   \   000010   1001         RETA
+     96          		// case HOLD_UP:
+     97          		// 	// set state:
+     98          		// 	if (transcribe_done == INDEX_ONE) {
+     99          		// 		COMMAND_STATE = SINGLE_COMMAND;
+    100          		// 	}
+    101          		// 	break;
+    102          		case SINGLE_COMMAND:
+    103          			// reset transcribe_done
+    104          			transcribe_done = ZERO;
+   \                     ??interpret_commands_6:
+   \   000012   8243....     MOV.W   #0x0, &transcribe_done
+    105          			// this way, when it returns to HOLD_UP, it will wait until another command is received
+    106          			//$1212F200
+    107          			// get time that command indicates
+    108          			command_time = ((string2dec(command[INDEX_SIX]) * HUNDRED_MULT) 
+                 			^
+Warning[Pa082]: undefined behavior: the order of volatile accesses is undefined
+          in this statement
+    109          					+ (string2dec(command[INDEX_SEVEN]) * INDEX_TEN) 
+    110          					+ (string2dec(command[INDEX_EIGHT]) * INDEX_ONE));
+   \   000016   5C42....     MOV.B   &command + 6, R12
+   \   00001A   ........     CALLA   #string2dec
+   \   00001E   0F4C         MOV.W   R12, R15
+   \   000020   5C42....     MOV.B   &command + 7, R12
+   \   000024   ........     CALLA   #string2dec
+   \   000028   5F06         RLAM.W  #0x2, R15
+   \   00002A   0E4F         MOV.W   R15, R14
+   \   00002C   5F0A         RLAM.W  #0x3, R15
+   \   00002E   0E5F         ADD.W   R15, R14
+   \   000030   0F5F         RLA.W   R15
+   \   000032   0F5E         ADD.W   R14, R15
+   \   000034                RPT     #0xa
+   \   000034   49180F5C     ADDX.W  R12, R15
+   \   000038   5C42....     MOV.B   &command + 8, R12
+   \   00003C   ........     CALLA   #string2dec
+   \   000040   0F5C         ADD.W   R12, R15
+   \   000042   824F....     MOV.W   R15, &command_time
+    111          
+    112          			if ((command[INDEX_ONE] == '1') && (command[INDEX_TWO] == '2') 
+    113          					&& (command[INDEX_THREE] == '1') && (command[INDEX_FOUR] == '2')) {
+   \   000046   F2903100.... CMP.B   #0x31, &command + 1
+   \   00004C   8420         JNE     ??interpret_commands_8
+   \   00004E   F2903200.... CMP.B   #0x32, &command + 2
+   \   000054   8020         JNE     ??interpret_commands_8
+   \   000056   F2903100.... CMP.B   #0x31, &command + 3
+   \   00005C   7C20         JNE     ??interpret_commands_8
+   \   00005E   F2903200.... CMP.B   #0x32, &command + 4
+   \   000064   7820         JNE     ??interpret_commands_8
+    114          			// Forward
+    115          				if (command[INDEX_FIVE] == 'F') {
+   \   000066   F2904600.... CMP.B   #0x46, &command + 5
+   \   00006C   1B20         JNE     ??interpret_commands_9
+    116          					BIG_Display("          ", " FORWARD  ", "          ");
+   \   00006E   3E40....     MOV.W   #`?<Constant "          ">`, R14
+   \   000072   3D40....     MOV.W   #`?<Constant " FORWARD  ">`, R13
+   \   000076   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   00007A   ........     CALLA   #BIG_Display
+    117          					command_activated = INDEX_ONE;
+   \   00007E   9243....     MOV.W   #0x1, &command_activated
+    118          					while (command_time > run_count) { // as long as this is true, time has not passed
+   \                     ??interpret_commands_0:
+   \   000082   9292........ CMP.W   &command_time, &run_count
+   \   000088   0734         JGE     ??interpret_commands_10
+    119          						// run command
+    120          						Forward_On(FORWARD_L, FORWARD_R); // left, right speed
+   \   00008A   3D40204E     MOV.W   #0x4e20, R13
+   \   00008E   3C40204E     MOV.W   #0x4e20, R12
+   \   000092   ........     CALLA   #Forward_On
+   \   000096   F53F         JMP     ??interpret_commands_0
+    121          					}
+    122          					Forward_Off();
+   \                     ??interpret_commands_10:
+   \   000098   ........     CALLA   #Forward_Off
+    123          					// reset run count and command_activated
+    124          					command_activated = ZERO;
+   \   00009C   8243....     MOV.W   #0x0, &command_activated
+    125          					run_count = ZERO;
+   \   0000A0   8243....     MOV.W   #0x0, &run_count
+    126          				}
+    127          				// Backward
+    128          				if (command[INDEX_FIVE] == 'B') {
+   \                     ??interpret_commands_9:
+   \   0000A4   F2904200.... CMP.B   #0x42, &command + 5
+   \   0000AA   1B20         JNE     ??interpret_commands_11
+    129          					BIG_Display("          ", " REVERSE  ", "          ");
+   \   0000AC   3E40....     MOV.W   #`?<Constant "          ">`, R14
+   \   0000B0   3D40....     MOV.W   #`?<Constant " REVERSE  ">`, R13
+   \   0000B4   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   0000B8   ........     CALLA   #BIG_Display
+    130          					command_activated = INDEX_ONE;
+   \   0000BC   9243....     MOV.W   #0x1, &command_activated
+    131          					while (command_time > run_count) { // as long as this is true, time has not passed
+   \                     ??interpret_commands_1:
+   \   0000C0   9292........ CMP.W   &command_time, &run_count
+   \   0000C6   0734         JGE     ??interpret_commands_12
+    132          						// run command
+    133          						Reverse_On(REVERSE_L, REVERSE_R); // left, right
+   \   0000C8   3D40204E     MOV.W   #0x4e20, R13
+   \   0000CC   3C40204E     MOV.W   #0x4e20, R12
+   \   0000D0   ........     CALLA   #Reverse_On
+   \   0000D4   F53F         JMP     ??interpret_commands_1
+    134          					}
+    135          					Reverse_Off();
+   \                     ??interpret_commands_12:
+   \   0000D6   ........     CALLA   #Reverse_Off
+    136          					// reset run count and command_activated
+    137          					command_activated = ZERO;
+   \   0000DA   8243....     MOV.W   #0x0, &command_activated
+    138          					run_count = ZERO;
+   \   0000DE   8243....     MOV.W   #0x0, &run_count
+    139          
+    140          				}
+    141          				// Right
+    142          				if (command[INDEX_FIVE] == 'R') {
+   \                     ??interpret_commands_11:
+   \   0000E2   F2905200.... CMP.B   #0x52, &command + 5
+   \   0000E8   1920         JNE     ??interpret_commands_13
+    143          					BIG_Display("          ", "  RIGHT   ", "          ");
+   \   0000EA   3E40....     MOV.W   #`?<Constant "          ">`, R14
+   \   0000EE   3D40....     MOV.W   #`?<Constant "  RIGHT   ">`, R13
+   \   0000F2   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   0000F6   ........     CALLA   #BIG_Display
+    144          					command_activated = INDEX_ONE;
+   \   0000FA   9243....     MOV.W   #0x1, &command_activated
+    145          					while (command_time > run_count) { // as long as this is true, time has not passed
+   \                     ??interpret_commands_2:
+   \   0000FE   9292........ CMP.W   &command_time, &run_count
+   \   000104   0534         JGE     ??interpret_commands_14
+    146          						// run command
+    147          						leftWheelForOn(LEFT_TURN_SPEED);
+   \   000106   3C40E02E     MOV.W   #0x2ee0, R12
+   \   00010A   ........     CALLA   #leftWheelForOn
+   \   00010E   F73F         JMP     ??interpret_commands_2
+    148          					}
+    149          					Forward_Off();
+   \                     ??interpret_commands_14:
+   \   000110   ........     CALLA   #Forward_Off
+    150          					// reset run count and command_activated
+    151          					command_activated = ZERO;
+   \   000114   8243....     MOV.W   #0x0, &command_activated
+    152          					run_count = ZERO;
+   \   000118   8243....     MOV.W   #0x0, &run_count
+    153          
+    154          				}
+    155          				// Left
+    156          				if (command[INDEX_FIVE] == 'L') {
+   \                     ??interpret_commands_13:
+   \   00011C   F2904C00.... CMP.B   #0x4c, &command + 5
+   \   000122   1920         JNE     ??interpret_commands_8
+    157          					BIG_Display("          ", "   LEFT   ", "          ");
+   \   000124   3E40....     MOV.W   #`?<Constant "          ">`, R14
+   \   000128   3D40....     MOV.W   #`?<Constant "   LEFT   ">`, R13
+   \   00012C   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   000130   ........     CALLA   #BIG_Display
+    158          					command_activated = INDEX_ONE;
+   \   000134   9243....     MOV.W   #0x1, &command_activated
+    159          					while (command_time > run_count) { // as long as this is true, time has not passed
+   \                     ??interpret_commands_3:
+   \   000138   9292........ CMP.W   &command_time, &run_count
+   \   00013E   0534         JGE     ??interpret_commands_15
+    160          						// run command
+    161          						rightWheelForOn(RIGHT_TURN_SPEED);
+   \   000140   3C40983A     MOV.W   #0x3a98, R12
+   \   000144   ........     CALLA   #rightWheelForOn
+   \   000148   F73F         JMP     ??interpret_commands_3
+    162          					}
+    163          					Forward_Off();
+   \                     ??interpret_commands_15:
+   \   00014A   ........     CALLA   #Forward_Off
+    164          					// reset run count and command_activated
+    165          					command_activated = ZERO;
+   \   00014E   8243....     MOV.W   #0x0, &command_activated
+    166          					run_count = ZERO;
+   \   000152   8243....     MOV.W   #0x0, &run_count
+    167          				}
+    168          			}
+    169          
+    170          			// COMMAND_STATE = HOLD_UP;
+    171          			if (command[INDEX_THIRTEEN] == 'I') { // Y button
+   \                     ??interpret_commands_8:
+   \   000156   F2904900.... CMP.B   #0x49, &command + 13
+   \   00015C   0820         JNE     ??interpret_commands_16
+    172          				mat_counter++;
+   \   00015E   9253....     ADD.W   #0x1, &mat_counter
+    173          				if (mat_counter > INDEX_EIGHT) mat_counter = ZERO;
+   \   000162   B2900900.... CMP.W   #0x9, &mat_counter
+   \   000168   0238         JL      ??interpret_commands_16
+   \   00016A   8243....     MOV.W   #0x0, &mat_counter
+    174          			}
+    175          
+    176          			// if button on controller is hit, start following line
+    177          			if (command[INDEX_THIRTEEN] == 'E') { // A button
+   \                     ??interpret_commands_16:
+   \   00016E   F2904500.... CMP.B   #0x45, &command + 13
+   \   000174   0520         JNE     ??interpret_commands_4
+    178          				COMMAND_STATE = LINE_SECTION;
+   \   000176   9243....     MOV.W   #0x1, &COMMAND_STATE
+    179          			}
+    180          
+    181          			break;
+   \   00017A   1001         RETA
+    182          		case LINE_SECTION:
+    183          			Follow_Line_Circle();
+   \                     ??interpret_commands_7:
+   \   00017C   ........     CALLA   #Follow_Line_Circle
+    184          			break;
+    185          		default: break;
+    186          	}
+    187          }
+   \                     ??interpret_commands_4:
+   \   000180   1001         RETA
+    188          
+    189          
+
+   \                                 In  segment CODE, align 2
+    190          int string2dec(char str) {
+   \                     string2dec:
+    191          	return (str - ASCII_TO_DEC);
+   \   000000   4C4C         MOV.B   R12, R12
+   \   000002   3C50D0FF     ADD.W   #0xffd0, R12
+   \   000006   1001         RETA
+    192          }
+    193          
+    194          
+
+   \                                 In  segment CODE, align 2
+    195          void initialize_iot() {
+   \                     initialize_iot:
+    196          	sendToIOT("AT+NSTAT=?\r\n");
+   \   000000   3C40....     MOV.W   #`?<Constant "AT+NSTAT=?\\r\\n">`, R12
+   \   000004   ........     CALLA   #sendToIOT
+    197          	sendToIOT("AT+Ping=google.com,1\r\n");
+   \   000008   3C40....     MOV.W   #`?<Constant "AT+Ping=google.com,1\\r\\n">`, R12
+   \   00000C   ........     CALLA   #sendToIOT
+    198          	sendToIOT("AT+NSTCP=1236,1\r\n");
+   \   000010   3C40....     MOV.W   #`?<Constant "AT+NSTCP=1236,1\\r\\n">`, R12
+   \   000014   ........     CALLA   #sendToIOT
+    199          
+    200          	initialize = ZERO;
+   \   000018   8243....     MOV.W   #0x0, &initialize
+    201          }
+   \   00001C   1001         RETA
+    202          
+
+   \                                 In  segment CODE, align 2
+    203          void sendToIOT(char* array) {
+   \                     sendToIOT:
+    204          	int i = ZERO;
+   \   000000   0E43         MOV.W   #0x0, R14
+    205          	while (INDEX_ONE) {
+    206          		while ((UCA0STATW & UCBUSY)); // block until A0 isnt transmitting or receiving
+   \                     ??sendToIOT_1:
+   \   000002   92B30A05     BIT.W   #0x1, &0x50a
+   \   000006   FD2F         JC      ??sendToIOT_1
+    207          		UCA0TXBUF = array[i];
+   \   000008   0F4C         MOV.W   R12, R15
+   \   00000A   0F5E         ADD.W   R14, R15
+   \   00000C   6F4F         MOV.B   @R15, R15
+   \   00000E   4F4F         MOV.B   R15, R15
+   \   000010   824F0E05     MOV.W   R15, &0x50e
+    208          		if(array[i] == '\n') break;
+   \   000014   0F4C         MOV.W   R12, R15
+   \   000016   0F5E         ADD.W   R14, R15
+   \   000018   FF900A000000 CMP.B   #0xa, 0(R15)
+   \   00001E   0224         JEQ     ??sendToIOT_3
+    209          		i++;
+    210          	}
+    211          }
+   \   000020   1E53         ADD.W   #0x1, R14
+   \   000022   EF3F         JMP     ??sendToIOT_1
+   \                     ??sendToIOT_3:
+   \   000024   1001         RETA
+   \   000026                REQUIRE _A_UCA0STATW_L
+   \   000026                REQUIRE _A_UCA0TXBUF_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " FORWARD  ">`:
+   \   000000   20464F525741 DC8 " FORWARD  "
+   \            5244202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " REVERSE  ">`:
+   \   000000   205245564552 DC8 " REVERSE  "
+   \            5345202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  RIGHT   ">`:
+   \   000000   202052494748 DC8 "  RIGHT   "
+   \            5420202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "   LEFT   ">`:
+   \   000000   2020204C4546 DC8 "   LEFT   "
+   \            5420202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTAT=?\\r\\n">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTAT=?\015\012"
+   \            41543D3F0D0A
+   \            00          
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+Ping=google.com,1\\r\\n">`:
+   \   000000   41542B50696E DC8 "AT+Ping=google.com,1\015\012"
+   \            673D676F6F67
+   \            6C652E636F6D
+   \            2C310D0A00  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "AT+NSTCP=1236,1\\r\\n">`:
+   \   000000   41542B4E5354 DC8 "AT+NSTCP=1236,1\015\012"
+   \            43503D313233
+   \            362C310D0A00
+    212          
+    213          
+    214          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      8   Display_IP
+        8   -> lcd_4line
+        8   -> line1_display
+        8   -> line2_display
+      4   initialize_iot
+        4   -> sendToIOT
+      4   interpret_commands
+        4   -> BIG_Display
+        4   -> Follow_Line_Circle
+        4   -> Forward_Off
+        4   -> Forward_On
+        4   -> Reverse_Off
+        4   -> Reverse_On
+        4   -> lcd_BIG_mid
+        4   -> leftWheelForOn
+        4   -> rightWheelForOn
+        4   -> string2dec
+      4   sendToIOT
+      4   string2dec
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      11  ?<Constant "   LEFT   ">
+      11  ?<Constant "  RIGHT   ">
+      11  ?<Constant " FORWARD  ">
+      11  ?<Constant " REVERSE  ">
+      13  ?<Constant "AT+NSTAT=?\r\n">
+      18  ?<Constant "AT+NSTCP=1236,1\r\n">
+      23  ?<Constant "AT+Ping=google.com,1\r\n">
+       2  COMMAND_STATE
+     126  Display_IP
+       2  _A_UCA0STATW_L
+       2  _A_UCA0TXBUF_L
+       2  command_time
+      30  initialize_iot
+     386  interpret_commands
+      30  ip_copy
+      30  ip_copy2
+       2  ip_reached
+       2  left_pwm_value
+       2  mat_counter
+       2  right_pwm_value
+      38  sendToIOT
+       8  string2dec
+       2  toggle_led
+
+ 
+ 588 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+ 109 bytes in segment DATA16_C
+  74 bytes in segment DATA16_Z
+ 
+ 588 bytes of CODE  memory
+ 109 bytes of CONST memory
+  74 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: 1

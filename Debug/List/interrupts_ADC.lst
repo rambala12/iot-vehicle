@@ -1,0 +1,240 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupts_ADC.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWB128.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupts_ADC.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\interrupts_ADC.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\interrupts_ADC.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\interrupts_ADC.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the interrupt 
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include "macros.h"
+     12          #include "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x700
+   \   union <unnamed> _A_ADCCTL0_L
+   \                     _A_ADCCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x70a
+   \   union <unnamed> _A_ADCMCTL0_L
+   \                     _A_ADCMCTL0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x712
+   \   union <unnamed> _A_ADCMEM0_L
+   \                     _A_ADCMEM0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x71e
+   \   union <unnamed> _A_ADCIV_L
+   \                     _A_ADCIV_L:
+   \   000000                DS8 2
+     14          #include "string.h"
+     15          
+     16          // turn off port interrupt
+     17          // turn on debouncing
+     18          // when the switch is clicked turn off ccr0 (blinking)
+     19          // Turn CCR0 on
+     20          // Turn P4IE off (turn switch off)
+     21          
+     22          // IN THE TIMER: ONCE TIMER (debounce_counter) COUNTS DOWN:
+     23          // turn switch back on 
+     24          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          int STATE = ZERO;
+   \                     STATE:
+   \   000000                DS8 2
+     26          extern volatile unsigned int ADC_Thumb;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          extern volatile unsigned int right_detector = ZERO;
+   \                     right_detector:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          extern volatile unsigned int left_detector = ZERO;
+   \                     left_detector:
+   \   000000                DS8 2
+     29          
+     30          #pragma vector = ADC_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     31          __interrupt void ADC_ISR(void) {
+   \                     ADC_ISR:
+   \   000000   0F12         PUSH.W  R15
+     32          	switch(__even_in_range(ADCIV, ADCIV_ADCIFG)) {
+   \   000002   1F421E07     MOV.W   &0x71e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for ADC_ISR>_0`:
+   \   000008   353C         JMP     ??ADC_ISR_0
+   \   00000A   343C         JMP     ??ADC_ISR_0
+   \   00000C   333C         JMP     ??ADC_ISR_0
+   \   00000E   323C         JMP     ??ADC_ISR_0
+   \   000010   313C         JMP     ??ADC_ISR_0
+   \   000012   303C         JMP     ??ADC_ISR_0
+   \   000014   003C         JMP     ??ADC_ISR_6
+     33          		case ADCIV_NONE:
+     34          			break;
+     35          		case ADCIV_ADCOVIFG:
+     36          			break;
+     37          		case ADCIV_ADCTOVIFG:
+     38          			break;
+     39          		case ADCIV_ADCHIIFG:
+     40          			break;
+     41          		case ADCIV_ADCLOIFG:
+     42          			break;
+     43          		case ADCIV_ADCINIFG:
+     44          			break;
+     45          		case ADCIV_ADCIFG:
+     46          			ADCCTL0 &= ~ADCENC; // disable interrupt
+   \                     ??ADC_ISR_6:
+   \   000016   A2C30007     BIC.W   #0x2, &0x700
+     47          			switch (++STATE) {
+   \   00001A   9253....     ADD.W   #0x1, &STATE
+   \   00001E   1F42....     MOV.W   &STATE, R15
+   \   000022   1F83         SUB.W   #0x1, R15
+   \   000024   0524         JEQ     ??ADC_ISR_3
+   \   000026   1F83         SUB.W   #0x1, R15
+   \   000028   0C24         JEQ     ??ADC_ISR_4
+   \   00002A   1F83         SUB.W   #0x1, R15
+   \   00002C   1324         JEQ     ??ADC_ISR_5
+   \   00002E   1C3C         JMP     ??ADC_ISR_1
+     48          	        case INDEX_ONE:
+     49          	          ADC_Thumb = ADCMEM0;
+   \                     ??ADC_ISR_3:
+   \   000030   92421207.... MOV.W   &0x712, &ADC_Thumb
+     50          	          ADCMCTL0 &= ~ADCINCH_5;
+   \   000036   B2F0FAFF0A07 AND.W   #0xfffa, &0x70a
+     51          	          ADCMCTL0 |= ADCINCH_2;
+   \   00003C   A2D30A07     BIS.W   #0x2, &0x70a
+     52          	          break;
+   \   000040   153C         JMP     ??ADC_ISR_2
+     53          	        case INDEX_TWO:
+     54          	          left_detector = ADCMEM0;
+   \                     ??ADC_ISR_4:
+   \   000042   92421207.... MOV.W   &0x712, &left_detector
+     55          	          ADCMCTL0 &= ~ADCINCH_2;
+   \   000048   A2C30A07     BIC.W   #0x2, &0x70a
+     56          	          ADCMCTL0 |= ADCINCH_3;
+   \   00004C   B2D003000A07 BIS.W   #0x3, &0x70a
+     57          	          break;
+   \   000052   0C3C         JMP     ??ADC_ISR_2
+     58          	        case INDEX_THREE:
+     59          	          right_detector = ADCMEM0;
+   \                     ??ADC_ISR_5:
+   \   000054   92421207.... MOV.W   &0x712, &right_detector
+     60          	          ADCMCTL0 &= ~ADCINCH_3;
+   \   00005A   B2F0FCFF0A07 AND.W   #0xfffc, &0x70a
+     61          	          ADCMCTL0 |= ADCINCH_5;
+   \   000060   B2D005000A07 BIS.W   #0x5, &0x70a
+     62          	          break;
+   \   000066   023C         JMP     ??ADC_ISR_2
+     63          	        default:
+     64          	          STATE = ZERO;
+   \                     ??ADC_ISR_1:
+   \   000068   8243....     MOV.W   #0x0, &STATE
+     65          			}	
+     66          			ADCCTL0 |= ADCENC;
+   \                     ??ADC_ISR_2:
+   \   00006C   A2D30007     BIS.W   #0x2, &0x700
+     67          			ADCCTL0 |= ADCSC;	    
+   \   000070   92D30007     BIS.W   #0x1, &0x700
+     68          			break;
+     69          		default:
+     70          			break;
+     71          	}
+     72          }
+   \                     ??ADC_ISR_0:
+   \   000074   3F41         POP.W   R15
+   \   000076   0013         RETI
+   \   000078                REQUIRE _A_ADCCTL0_L
+   \   000078                REQUIRE _A_ADCMEM0_L
+   \   000078                REQUIRE _A_ADCMCTL0_L
+   \   000078                REQUIRE _A_ADCIV_L
+
+   \                                 In  segment INTVEC, offset 0x3a, root
+   \                     `??ADC_ISR::??INTVEC 58`:
+   \   00003A   ....         DC16    ADC_ISR
+     73          
+     74          
+     75          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      6   ADC_ISR
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+     120  ADC_ISR
+       2  ADC_ISR::??INTVEC 58
+       2  STATE
+       2  _A_ADCCTL0_L
+       2  _A_ADCIV_L
+       2  _A_ADCMCTL0_L
+       2  _A_ADCMEM0_L
+       2  left_detector
+       2  right_detector
+
+ 
+   8 bytes in segment DATA16_AN
+   6 bytes in segment DATA16_Z
+   2 bytes in segment INTVEC
+ 120 bytes in segment ISR_CODE
+ 
+ 120 bytes of CODE  memory
+   0 bytes of CONST memory (+ 2 bytes shared)
+   6 bytes of DATA  memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

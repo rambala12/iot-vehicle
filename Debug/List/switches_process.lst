@@ -1,0 +1,186 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           13/Feb/2019  14:37:24
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework 05\switches_process.c
+#    Command line  =  
+#        -f C:\Users\RAMBAL~1\AppData\Local\Temp\EWC65C.tmp ("C:\Users\Ram
+#        Bala\Desktop\ECE 306\Code\Homework 05\switches_process.c" -lC
+#        "C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework 05\Debug\List" -o
+#        "C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework 05\Debug\Obj"
+#        --no_cse --no_unroll --no_inline --no_code_motion --no_tbaa --debug
+#        -D__MSP430FR2355__ -e --double=32 --dlib_config "C:\Program Files
+#        (x86)\IAR Systems\Embedded Workbench 8.0\430\lib\dlib\dl430xlsfn.h" -I
+#        ./\ --core=430X --data_model=small -On --multiplier=32
+#        --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework
+#        05\Debug\List\switches_process.lst
+#    Object file   =  
+#        C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework
+#        05\Debug\Obj\switches_process.r43
+#
+###############################################################################
+
+C:\Users\Ram Bala\Desktop\ECE 306\Code\Homework 05\switches_process.c
+      1          #include "macros.h"
+      2          #include "functions.h"
+      3          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x200
+   \   union <unnamed> _A_PAIN_L
+   \                     _A_PAIN_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x220
+   \   union <unnamed> _A_PBIN_L
+   \                     _A_PBIN_L:
+   \   000000                DS8 2
+      4          #include "string.h"
+      5          
+      6          extern char display_line[4][11];
+      7          extern char *display[4];
+      8          extern volatile unsigned char update_display;
+      9          extern volatile unsigned int update_display_count;
+     10          
+
+   \                                 In  segment CODE, align 2
+     11          void Switches_Process(void) { // Right Switch
+   \                     Switches_Process:
+     12          	if (!(P4IN & SW1)) {
+   \   000000   E2B32102     BIT.B   #0x2, &0x221
+   \   000004   252C         JC      ??Switches_Process_0
+     13                          Init_Port3(USE_GPIO);
+   \   000006   0C43         MOV.W   #0x0, R12
+   \   000008   ........     CALLA   #Init_Port3
+     14          		strcpy(display_line[0], "   NCSU   ");
+   \   00000C   3D40....     MOV.W   #`?<Constant "   NCSU   ">`, R13
+   \   000010   3C40....     MOV.W   #display_line, R12
+   \   000014   ........     CALLA   #strcpy
+     15            		update_string(display_line[0], 0);
+   \   000018   0D43         MOV.W   #0x0, R13
+   \   00001A   ........     CALLA   #update_string
+     16            		strcpy(display_line[1], " WOLFPACK ");
+   \   00001E   3D40....     MOV.W   #`?<Constant " WOLFPACK ">`, R13
+   \   000022   3C40....     MOV.W   #display_line + 11, R12
+   \   000026   ........     CALLA   #strcpy
+     17            		update_string(display_line[1], 1);
+   \   00002A   1D43         MOV.W   #0x1, R13
+   \   00002C   3C40....     MOV.W   #display_line + 11, R12
+   \   000030   ........     CALLA   #update_string
+     18            		strcpy(display_line[2], "  GPIO  ");
+   \   000034   3D40....     MOV.W   #`?<Constant "  GPIO  ">`, R13
+   \   000038   3C40....     MOV.W   #display_line + 22, R12
+   \   00003C   ........     CALLA   #strcpy
+     19            		update_string(display_line[3], 3);
+   \   000040   3D400300     MOV.W   #0x3, R13
+   \   000044   3C40....     MOV.W   #display_line + 33, R12
+   \   000048   ........     CALLA   #update_string
+     20            		enable_display_update();
+   \   00004C   ........     CALLA   #enable_display_update
+     21          	}
+     22          	if (!(P2IN & SW2)) { // Left Switch
+   \                     ??Switches_Process_0:
+   \   000050   F2B20102     BIT.B   #0x8, &0x201
+   \   000054   252C         JC      ??Switches_Process_1
+     23                          Init_Port3(USE_SMCLK);
+   \   000056   1C43         MOV.W   #0x1, R12
+   \   000058   ........     CALLA   #Init_Port3
+     24          		strcpy(display_line[0], "   NCSU   ");
+   \   00005C   3D40....     MOV.W   #`?<Constant "   NCSU   ">`, R13
+   \   000060   3C40....     MOV.W   #display_line, R12
+   \   000064   ........     CALLA   #strcpy
+     25            		update_string(display_line[0], 0);
+   \   000068   0D43         MOV.W   #0x0, R13
+   \   00006A   ........     CALLA   #update_string
+     26            		strcpy(display_line[1], " WOLFPACK ");
+   \   00006E   3D40....     MOV.W   #`?<Constant " WOLFPACK ">`, R13
+   \   000072   3C40....     MOV.W   #display_line + 11, R12
+   \   000076   ........     CALLA   #strcpy
+     27            		update_string(display_line[1], 1);
+   \   00007A   1D43         MOV.W   #0x1, R13
+   \   00007C   3C40....     MOV.W   #display_line + 11, R12
+   \   000080   ........     CALLA   #update_string
+     28            		strcpy(display_line[2], "  SMCLK  ");
+   \   000084   3D40....     MOV.W   #`?<Constant "  SMCLK  ">`, R13
+   \   000088   3C40....     MOV.W   #display_line + 22, R12
+   \   00008C   ........     CALLA   #strcpy
+     29            		update_string(display_line[3], 3);
+   \   000090   3D400300     MOV.W   #0x3, R13
+   \   000094   3C40....     MOV.W   #display_line + 33, R12
+   \   000098   ........     CALLA   #update_string
+     30            		enable_display_update();
+   \   00009C   ........     CALLA   #enable_display_update
+     31          	}
+     32          }
+   \                     ??Switches_Process_1:
+   \   0000A0   1001         RETA
+   \   0000A2                REQUIRE _A_PBIN_L
+   \   0000A2                REQUIRE _A_PAIN_L
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "   NCSU   ">`:
+   \   000000   2020204E4353 DC8 "   NCSU   "
+   \            5520202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant " WOLFPACK ">`:
+   \   000000   20574F4C4650 DC8 " WOLFPACK "
+   \            41434B2000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  GPIO  ">`:
+   \   000000   20204750494F DC8 "  GPIO  "
+   \            202000      
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  SMCLK  ">`:
+   \   000000   2020534D434C DC8 "  SMCLK  "
+   \            4B202000    
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Switches_Process
+        4   -> Init_Port3
+        4   -> enable_display_update
+        4   -> strcpy
+        4   -> update_string
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "   NCSU   ">
+       9  ?<Constant "  GPIO  ">
+      10  ?<Constant "  SMCLK  ">
+      11  ?<Constant " WOLFPACK ">
+     162  Switches_Process
+       2  _A_PAIN_L
+       2  _A_PBIN_L
+
+ 
+ 162 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+  41 bytes in segment DATA16_C
+ 
+ 162 bytes of CODE  memory
+  41 bytes of CONST memory
+   0 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

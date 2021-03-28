@@ -1,0 +1,508 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  19:17:39
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\display.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EW9247.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\display.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\display.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\display.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\display.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains display information about what to place on LDC
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+     12          #include "macros.h"
+     13          #include "ports.h"
+     14          #include <string.h>
+     15          
+     16          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     17          extern char *display[DISPLAY_SIZE];
+     18          extern volatile unsigned char update_display;
+     19          extern volatile unsigned int update_display_count;
+     20          extern volatile unsigned char display_changed;
+     21          extern char adc_char[ADC_CHAR_SIZE];
+     22          extern volatile unsigned int ADC_Thumb;
+     23          extern volatile unsigned int left_detector;
+     24          extern volatile unsigned int right_detector;
+     25          extern volatile int EmitterValue;
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     26          extern int direction = NEG_ONE; // left (0) or right (1)
+   \                     direction:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for direction>`
+
+   \                                 In  segment DATA16_I, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     27          extern int line_pos = NEG_ONE;
+   \                     line_pos:
+   \   000000                DS8 2
+   \   000002                REQUIRE `?<Initializer for line_pos>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          extern int on_line = ZERO;
+   \                     on_line:
+   \   000000                DS8 2
+     29          extern int move_count;
+     30          extern int mat_counter;
+     31          
+     32          
+     33          // Determines position of line ==========================================================
+     34          
+     35          
+
+   \                                 In  segment CODE, align 2
+     36          void Line_Position() {
+   \                     Line_Position:
+     37            if (((right_detector < DETECT_WHITE) && (left_detector > DETECT_BLACK))) {
+   \   000000   B2902C01.... CMP.W   #0x12c, &right_detector
+   \   000006   072C         JC      ??Line_Position_0
+   \   000008   B2902103.... CMP.W   #0x321, &left_detector
+   \   00000E   0328         JNC     ??Line_Position_0
+     38              line_pos = LEFT; // left on white
+   \   000010   A243....     MOV.W   #0x2, &line_pos
+   \   000014   1001         RETA
+     39              //strcpy(display_line[DL_THIRD_INDEX], "OFF  RIGHT");
+     40            } else if (((left_detector < DETECT_WHITE) && (right_detector > DETECT_BLACK))) {
+   \                     ??Line_Position_0:
+   \   000016   B2902C01.... CMP.W   #0x12c, &left_detector
+   \   00001C   072C         JC      ??Line_Position_1
+   \   00001E   B2902103.... CMP.W   #0x321, &right_detector
+   \   000024   0328         JNC     ??Line_Position_1
+     41              line_pos = RIGHT; // right on white
+   \   000026   9243....     MOV.W   #0x1, &line_pos
+   \   00002A   1001         RETA
+     42              //strcpy(display_line[DL_THIRD_INDEX], "OFF   LEFT");
+     43            } else if (((right_detector < DETECT_WHITE) && (left_detector < DETECT_WHITE))) {
+   \                     ??Line_Position_1:
+   \   00002C   B2902C01.... CMP.W   #0x12c, &right_detector
+   \   000032   092C         JC      ??Line_Position_2
+   \   000034   B2902C01.... CMP.W   #0x12c, &left_detector
+   \   00003A   052C         JC      ??Line_Position_2
+     44              line_pos = ON_WHITE; // both white
+   \   00003C   8243....     MOV.W   #0x0, &line_pos
+     45              //strcpy(display_line[DL_THIRD_INDEX], "OFF   NONE");
+     46              on_line = 0;
+   \   000040   8243....     MOV.W   #0x0, &on_line
+   \   000044   1001         RETA
+     47            } else if (((right_detector > DETECT_BLACK) && (left_detector > DETECT_BLACK))) {
+   \                     ??Line_Position_2:
+   \   000046   B2902103.... CMP.W   #0x321, &right_detector
+   \   00004C   0928         JNC     ??Line_Position_3
+   \   00004E   B2902103.... CMP.W   #0x321, &left_detector
+   \   000054   0528         JNC     ??Line_Position_3
+     48              line_pos = ON_BLACK; // both black
+   \   000056   B2400300.... MOV.W   #0x3, &line_pos
+     49              on_line = 1;
+   \   00005C   9243....     MOV.W   #0x1, &on_line
+     50            } 
+     51          }
+   \                     ??Line_Position_3:
+   \   000060   1001         RETA
+     52          
+     53          // Display number of pads
+     54          
+
+   \                                 In  segment CODE, align 2
+     55          void Display_Pads() {
+   \                     Display_Pads:
+     56            HEXtoBCD(mat_counter);
+   \   000000   1C42....     MOV.W   &mat_counter, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     57            line3_display(adc_char);
+   \   000008   3C40....     MOV.W   #adc_char, R12
+   \   00000C   ........     BRA     #line3_display
+     58          }
+     59          
+     60          // Display for millisecond clock ==============================================
+     61          
+
+   \                                 In  segment CODE, align 2
+     62          void Display_Clock() {
+   \                     Display_Clock:
+     63            HEXtoBCD(move_count);
+   \   000000   1C42....     MOV.W   &move_count, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     64            strcpy(display_line[DL_ZERO_INDEX], adc_char);
+   \   000008   3D40....     MOV.W   #adc_char, R13
+   \   00000C   3C40....     MOV.W   #display_line, R12
+   \   000010   ........     CALLA   #strcpy
+     65            update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   000014   0D43         MOV.W   #0x0, R13
+   \   000016   ........     CALLA   #update_string
+     66            display_changed = ONE;
+   \   00001A   D243....     MOV.B   #0x1, &display_changed
+     67          }
+   \   00001E   1001         RETA
+     68          
+     69          // Display for ADC values and line position ==============================================
+     70          
+
+   \                                 In  segment CODE, align 2
+     71          void Display_Thumb() {
+   \                     Display_Thumb:
+     72            HEXtoBCD(ADC_Thumb);
+   \   000000   1C42....     MOV.W   &ADC_Thumb, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     73            strcpy(display_line[DL_ZERO_INDEX], adc_char);
+   \   000008   3D40....     MOV.W   #adc_char, R13
+   \   00000C   3C40....     MOV.W   #display_line, R12
+   \   000010   ........     CALLA   #strcpy
+     74            update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   000014   0D43         MOV.W   #0x0, R13
+   \   000016   ........     CALLA   #update_string
+     75            display_changed = ONE;
+   \   00001A   D243....     MOV.B   #0x1, &display_changed
+     76          }
+   \   00001E   1001         RETA
+     77          
+
+   \                                 In  segment CODE, align 2
+     78          void Display_L_Detector() {
+   \                     Display_L_Detector:
+     79            HEXtoBCD(left_detector);
+   \   000000   1C42....     MOV.W   &left_detector, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     80            strcpy(display_line[DL_FIRST_INDEX], adc_char);
+   \   000008   3D40....     MOV.W   #adc_char, R13
+   \   00000C   3C40....     MOV.W   #display_line + 11, R12
+   \   000010   ........     CALLA   #strcpy
+     81            update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+   \   000014   1D43         MOV.W   #0x1, R13
+   \   000016   3C40....     MOV.W   #display_line + 11, R12
+   \   00001A   ........     CALLA   #update_string
+     82            display_changed = ONE;
+   \   00001E   D243....     MOV.B   #0x1, &display_changed
+     83          }
+   \   000022   1001         RETA
+     84          
+
+   \                                 In  segment CODE, align 2
+     85          void Display_R_Detector() {
+   \                     Display_R_Detector:
+     86            HEXtoBCD(right_detector);
+   \   000000   1C42....     MOV.W   &right_detector, R12
+   \   000004   ........     CALLA   #HEXtoBCD
+     87            strcpy(display_line[DL_SEC_INDEX], adc_char);
+   \   000008   3D40....     MOV.W   #adc_char, R13
+   \   00000C   3C40....     MOV.W   #display_line + 22, R12
+   \   000010   ........     CALLA   #strcpy
+     88            update_string(display_line[DL_SEC_INDEX], DL_SEC_INDEX);
+   \   000014   2D43         MOV.W   #0x2, R13
+   \   000016   3C40....     MOV.W   #display_line + 22, R12
+   \   00001A   ........     CALLA   #update_string
+     89            display_changed = ONE;
+   \   00001E   D243....     MOV.B   #0x1, &display_changed
+     90          }
+   \   000022   1001         RETA
+     91          
+     92          // Displaying any word to LCD
+
+   \                                 In  segment CODE, align 2
+     93          void line0_display(char *str) {
+   \                     line0_display:
+   \   000000   0A12         PUSH.W  R10
+   \   000002   0A4C         MOV.W   R12, R10
+     94            strcpy(display_line[DL_ZERO_INDEX], str);
+   \   000004   0D4A         MOV.W   R10, R13
+   \   000006   3C40....     MOV.W   #display_line, R12
+   \   00000A   ........     CALLA   #strcpy
+     95            update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   00000E   0D43         MOV.W   #0x0, R13
+   \   000010   ........     CALLA   #update_string
+     96            display_changed = ONE;
+   \   000014   D243....     MOV.B   #0x1, &display_changed
+     97          }
+   \   000018   3A41         POP.W   R10
+   \   00001A   1001         RETA
+     98          
+
+   \                                 In  segment CODE, align 2
+     99          void line1_display(char *str) {
+   \                     line1_display:
+   \   000000   0A12         PUSH.W  R10
+   \   000002   0A4C         MOV.W   R12, R10
+    100            strcpy(display_line[DL_FIRST_INDEX], str);
+   \   000004   0D4A         MOV.W   R10, R13
+   \   000006   3C40....     MOV.W   #display_line + 11, R12
+   \   00000A   ........     CALLA   #strcpy
+    101            update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+   \   00000E   1D43         MOV.W   #0x1, R13
+   \   000010   3C40....     MOV.W   #display_line + 11, R12
+   \   000014   ........     CALLA   #update_string
+    102            display_changed = ONE;
+   \   000018   D243....     MOV.B   #0x1, &display_changed
+    103          }
+   \   00001C   3A41         POP.W   R10
+   \   00001E   1001         RETA
+    104          
+
+   \                                 In  segment CODE, align 2
+    105          void line2_display(char *str) {
+   \                     line2_display:
+   \   000000   0A12         PUSH.W  R10
+   \   000002   0A4C         MOV.W   R12, R10
+    106            strcpy(display_line[DL_SEC_INDEX], str);
+   \   000004   0D4A         MOV.W   R10, R13
+   \   000006   3C40....     MOV.W   #display_line + 22, R12
+   \   00000A   ........     CALLA   #strcpy
+    107            update_string(display_line[DL_SEC_INDEX], DL_SEC_INDEX);
+   \   00000E   2D43         MOV.W   #0x2, R13
+   \   000010   3C40....     MOV.W   #display_line + 22, R12
+   \   000014   ........     CALLA   #update_string
+    108            display_changed = ONE;
+   \   000018   D243....     MOV.B   #0x1, &display_changed
+    109          }
+   \   00001C   3A41         POP.W   R10
+   \   00001E   1001         RETA
+    110          
+
+   \                                 In  segment CODE, align 2
+    111          void line3_display(char *str) {
+   \                     line3_display:
+   \   000000   0A12         PUSH.W  R10
+   \   000002   0A4C         MOV.W   R12, R10
+    112            strcpy(display_line[DL_THIRD_INDEX], str);
+   \   000004   0D4A         MOV.W   R10, R13
+   \   000006   3C40....     MOV.W   #display_line + 33, R12
+   \   00000A   ........     CALLA   #strcpy
+    113            update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+   \   00000E   3D400300     MOV.W   #0x3, R13
+   \   000012   3C40....     MOV.W   #display_line + 33, R12
+   \   000016   ........     CALLA   #update_string
+    114            display_changed = ONE;
+   \   00001A   D243....     MOV.B   #0x1, &display_changed
+    115          }
+   \   00001E   3A41         POP.W   R10
+   \   000020   1001         RETA
+    116          
+
+   \                                 In  segment CODE, align 2
+    117          void clear_display() {
+   \                     clear_display:
+    118            line0_display("          ");
+   \   000000   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   000004   ........     CALLA   #line0_display
+    119            line1_display("          ");
+   \   000008   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   00000C   ........     CALLA   #line1_display
+    120            line2_display("          ");
+   \   000010   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   000014   ........     CALLA   #line2_display
+    121            line3_display("          ");
+   \   000018   3C40....     MOV.W   #`?<Constant "          ">`, R12
+   \   00001C   ........     BRA     #line3_display
+    122          }
+    123          
+
+   \                                 In  segment CODE, align 2
+    124          void BIG_Display(char *str1, char *str2, char *str3) {
+   \                     BIG_Display:
+   \   000000   3B15         PUSHM.W #0x4, R11
+   \   000002   0A4C         MOV.W   R12, R10
+   \   000004   0B4D         MOV.W   R13, R11
+   \   000006   084E         MOV.W   R14, R8
+    125            strcpy(display_line[DL_ZERO_INDEX], str1);
+   \   000008   0D4A         MOV.W   R10, R13
+   \   00000A   3C40....     MOV.W   #display_line, R12
+   \   00000E   ........     CALLA   #strcpy
+    126            update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   000012   0D43         MOV.W   #0x0, R13
+   \   000014   ........     CALLA   #update_string
+    127            strcpy(display_line[DL_FIRST_INDEX], str2);
+   \   000018   0D4B         MOV.W   R11, R13
+   \   00001A   3C40....     MOV.W   #display_line + 11, R12
+   \   00001E   ........     CALLA   #strcpy
+    128            update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+   \   000022   1D43         MOV.W   #0x1, R13
+   \   000024   3C40....     MOV.W   #display_line + 11, R12
+   \   000028   ........     CALLA   #update_string
+    129            strcpy(display_line[DL_SEC_INDEX], str3);
+   \   00002C   0D48         MOV.W   R8, R13
+   \   00002E   3C40....     MOV.W   #display_line + 22, R12
+   \   000032   ........     CALLA   #strcpy
+    130            update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+   \   000036   3D400300     MOV.W   #0x3, R13
+   \   00003A   3C40....     MOV.W   #display_line + 33, R12
+   \   00003E   ........     CALLA   #update_string
+    131          }
+   \   000042   3817         POPM.W  #0x4, R11
+   \   000044   1001         RETA
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for direction>`:
+   \   000000   FFFF         DC16 -1
+
+   \                                 In  segment DATA16_ID, align 2, align-sorted
+   \                     `?<Initializer for line_pos>`:
+   \   000000   FFFF         DC16 -1
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+    132          
+    133          // void Display_Line_Position() {
+    134          //   if (((right_detector < DETECT_WHITE) && (left_detector > DETECT_BLACK))) {
+    135          //     if (line_pos == INDEX_THREE) { // right was on white before, now left on white
+    136          //       // strcpy(display_line[DL_THIRD_INDEX], "      LEFT");
+    137          //       // update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    138          //       // display_changed = ONE;
+    139          //       direction = ZERO;
+    140          //     }
+    141          //     if (line_pos == ZERO) {
+    142          //       // strcpy(display_line[DL_THIRD_INDEX], "     RIGHT");
+    143          //       // update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    144          //       // display_changed = ONE;
+    145          //       direction = INDEX_ONE;
+    146          //     }
+    147          //     line_pos = LEFT; // left on white
+    148          //     //strcpy(display_line[DL_THIRD_INDEX], "OFF  RIGHT");
+    149          //   } else if (((left_detector < DETECT_WHITE) && (right_detector > DETECT_BLACK))) {
+    150          //     if (line_pos == INDEX_THREE) { // right was on white before, now left on white
+    151          //       // strcpy(display_line[DL_THIRD_INDEX], "     RIGHT");
+    152          //       // update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    153          //       // display_changed = ONE;
+    154          //       direction = INDEX_ONE;
+    155          //     }
+    156          //     if (line_pos == ZERO) {
+    157          //       // strcpy(display_line[DL_THIRD_INDEX], "      LEFT");
+    158          //       // update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+    159          //       // display_changed = ONE;
+    160          //       direction = ZERO;
+    161          //     }
+    162          //     line_pos = RIGHT; // right on white
+    163          //     //strcpy(display_line[DL_THIRD_INDEX], "OFF   LEFT");
+    164          //   } else if (((right_detector < DETECT_WHITE) && (left_detector < DETECT_WHITE))) {
+    165          //     line_pos = ON_WHITE; // both white
+    166          //     //strcpy(display_line[DL_THIRD_INDEX], "OFF   NONE");
+    167          //   } else if (((right_detector > DETECT_BLACK) && (left_detector > DETECT_BLACK))) {
+    168          //     line_pos = ON_BLACK; // both black
+    169          //   } 
+    170          // }
+    171          
+    172          
+    173          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     12   BIG_Display
+       12   -> strcpy
+       12   -> update_string
+      4   Display_Clock
+        4   -> HEXtoBCD
+        4   -> strcpy
+        4   -> update_string
+      4   Display_L_Detector
+        4   -> HEXtoBCD
+        4   -> strcpy
+        4   -> update_string
+      4   Display_Pads
+        4   -> HEXtoBCD
+        0   -> line3_display
+      4   Display_R_Detector
+        4   -> HEXtoBCD
+        4   -> strcpy
+        4   -> update_string
+      4   Display_Thumb
+        4   -> HEXtoBCD
+        4   -> strcpy
+        4   -> update_string
+      4   Line_Position
+      4   clear_display
+        4   -> line0_display
+        4   -> line1_display
+        4   -> line2_display
+        0   -> line3_display
+      6   line0_display
+        6   -> strcpy
+        6   -> update_string
+      6   line1_display
+        6   -> strcpy
+        6   -> update_string
+      6   line2_display
+        6   -> strcpy
+        6   -> update_string
+      6   line3_display
+        6   -> strcpy
+        6   -> update_string
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+       2  ?<Initializer for direction>
+       2  ?<Initializer for line_pos>
+      70  BIG_Display
+      32  Display_Clock
+      36  Display_L_Detector
+      16  Display_Pads
+      36  Display_R_Detector
+      32  Display_Thumb
+      98  Line_Position
+      32  clear_display
+       2  direction
+      28  line0_display
+      32  line1_display
+      32  line2_display
+      34  line3_display
+       2  line_pos
+       2  on_line
+
+ 
+ 478 bytes in segment CODE
+  11 bytes in segment DATA16_C
+   4 bytes in segment DATA16_I
+   4 bytes in segment DATA16_ID
+   2 bytes in segment DATA16_Z
+ 
+ 478 bytes of CODE  memory
+  15 bytes of CONST memory
+   6 bytes of DATA  memory
+
+Errors: none
+Warnings: none

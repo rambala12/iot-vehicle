@@ -1,0 +1,281 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupt_ports.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWAFA0.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupt_ports.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\interrupt_ports.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\interrupt_ports.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\interrupt_ports.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the interrupt 
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include "macros.h"
+     12          #include "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x21a
+   \   union <unnamed> _A_PAIE_L
+   \                     _A_PAIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x21c
+   \   union <unnamed> _A_PAIFG_L
+   \                     _A_PAIFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x23a
+   \   union <unnamed> _A_PBIE_L
+   \                     _A_PBIE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x23c
+   \   union <unnamed> _A_PBIFG_L
+   \                     _A_PBIFG_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x384
+   \   union <unnamed> _A_TB0CCTL1_L
+   \                     _A_TB0CCTL1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x386
+   \   union <unnamed> _A_TB0CCTL2_L
+   \                     _A_TB0CCTL2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x506
+   \   union <unnamed> _A_UCA0BRW_L
+   \                     _A_UCA0BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x508
+   \   union <unnamed> _A_UCA0MCTLW_L
+   \                     _A_UCA0MCTLW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x586
+   \   union <unnamed> _A_UCA1BRW_L
+   \                     _A_UCA1BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x588
+   \   union <unnamed> _A_UCA1MCTLW_L
+   \                     _A_UCA1MCTLW_L:
+   \   000000                DS8 2
+     14          #include "string.h"
+     15          
+     16          // turn off port interrupt
+     17          // turn on debouncing
+     18          // when the switch is clicked turn off ccr0 (blinking)
+     19          // Turn CCR0 on
+     20          // Turn P4IE off (turn switch off)
+     21          
+     22          // IN THE TIMER: ONCE TIMER (debounce_counter) COUNTS DOWN:
+     23          // turn switch back on 
+     24          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     25          extern char *display[DISPLAY_SIZE];
+     26          extern volatile unsigned char update_display;
+     27          extern volatile unsigned int update_display_count;
+     28          extern volatile unsigned char display_changed;
+     29          
+     30          
+     31          
+     32          #pragma vector = PORT4_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     33          __interrupt void switch_interrupt(void) {
+   \                     switch_interrupt:
+   \   000000   3F15         PUSHM.W #0x4, R15
+     34          	if (P4IFG & SW1) {
+   \   000002   E2B33D02     BIT.B   #0x2, &0x23d
+   \   000006   1D28         JNC     ??switch_interrupt_0
+     35          		strcpy(display_line[DL_THIRD_INDEX], "  115,200 ");
+   \   000008   3D40....     MOV.W   #`?<Constant "  115,200 ">`, R13
+   \   00000C   3C40....     MOV.W   #display_line + 33, R12
+   \   000010   ........     CALLA   #strcpy
+     36            		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+   \   000014   3D400300     MOV.W   #0x3, R13
+   \   000018   3C40....     MOV.W   #display_line + 33, R12
+   \   00001C   ........     CALLA   #update_string
+     37            		display_changed = ONE;
+   \   000020   D243....     MOV.B   #0x1, &display_changed
+     38              // iot
+     39            	UCA0BRW = INDEX_FOUR;
+   \   000024   A2420605     MOV.W   #0x4, &0x506
+     40          		UCA0MCTLW = BAUD_RATE_ONE;
+   \   000028   B24051550805 MOV.W   #0x5551, &0x508
+     41          
+     42              // usb
+     43              UCA1BRW = INDEX_FOUR;
+   \   00002E   A2428605     MOV.W   #0x4, &0x586
+     44              UCA1MCTLW = BAUD_RATE_ONE;
+   \   000032   B24051558805 MOV.W   #0x5551, &0x588
+     45          
+     46          		TB0CCTL1 |= CCIE;
+   \   000038   B2D010008403 BIS.W   #0x10, &0x384
+     47          		P4IE &= ~SW1;
+   \   00003E   E2C33B02     BIC.B   #0x2, &0x23b
+     48          	}
+     49          }
+   \                     ??switch_interrupt_0:
+   \   000042   3C17         POPM.W  #0x4, R15
+   \   000044   0013         RETI
+   \   000046                REQUIRE _A_PBIFG_L
+   \   000046                REQUIRE _A_UCA0BRW_L
+   \   000046                REQUIRE _A_UCA0MCTLW_L
+   \   000046                REQUIRE _A_UCA1BRW_L
+   \   000046                REQUIRE _A_UCA1MCTLW_L
+   \   000046                REQUIRE _A_TB0CCTL1_L
+   \   000046                REQUIRE _A_PBIE_L
+     50          
+     51          #pragma vector = PORT2_VECTOR
+
+   \                                 In  segment ISR_CODE, align 2
+     52          __interrupt void switch_interrupt2(void) {
+   \                     switch_interrupt2:
+   \   000000   3F15         PUSHM.W #0x4, R15
+     53          	if (P2IFG & SW2) {
+   \   000002   F2B21D02     BIT.B   #0x8, &0x21d
+   \   000006   1D28         JNC     ??switch_interrupt2_0
+     54          		strcpy(display_line[DL_THIRD_INDEX], "  460,800 ");
+   \   000008   3D40....     MOV.W   #`?<Constant "  460,800 ">`, R13
+   \   00000C   3C40....     MOV.W   #display_line + 33, R12
+   \   000010   ........     CALLA   #strcpy
+     55            		update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+   \   000014   3D400300     MOV.W   #0x3, R13
+   \   000018   3C40....     MOV.W   #display_line + 33, R12
+   \   00001C   ........     CALLA   #update_string
+     56            		display_changed = ONE;
+   \   000020   D243....     MOV.B   #0x1, &display_changed
+     57              // iot
+     58          		UCA0BRW = INDEX_ONE;
+   \   000024   92430605     MOV.W   #0x1, &0x506
+     59              UCA0MCTLW = BAUD_RATE_TWO;
+   \   000028   B240114A0805 MOV.W   #0x4a11, &0x508
+     60          
+     61              // usb
+     62              UCA1BRW = INDEX_ONE;
+   \   00002E   92438605     MOV.W   #0x1, &0x586
+     63              UCA1MCTLW = BAUD_RATE_TWO;
+   \   000032   B240114A8805 MOV.W   #0x4a11, &0x588
+     64          
+     65              	TB0CCTL2 |= CCIE;
+   \   000038   B2D010008603 BIS.W   #0x10, &0x386
+     66          		P2IE &= ~SW2;
+   \   00003E   F2C21B02     BIC.B   #0x8, &0x21b
+     67          	}
+     68          }
+   \                     ??switch_interrupt2_0:
+   \   000042   3C17         POPM.W  #0x4, R15
+   \   000044   0013         RETI
+   \   000046                REQUIRE _A_PAIFG_L
+   \   000046                REQUIRE _A_UCA0BRW_L
+   \   000046                REQUIRE _A_UCA0MCTLW_L
+   \   000046                REQUIRE _A_UCA1BRW_L
+   \   000046                REQUIRE _A_UCA1MCTLW_L
+   \   000046                REQUIRE _A_TB0CCTL2_L
+   \   000046                REQUIRE _A_PAIE_L
+
+   \                                 In  segment INTVEC, offset 0x2c, root
+   \                     `??switch_interrupt::??INTVEC 44`:
+   \   00002C   ....         DC16    switch_interrupt
+
+   \                                 In  segment INTVEC, offset 0x30, root
+   \                     `??switch_interrupt2::??INTVEC 48`:
+   \   000030   ....         DC16    switch_interrupt2
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  115,200 ">`:
+   \   000000   20203131352C DC8 "  115,200 "
+   \            3230302000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "  460,800 ">`:
+   \   000000   20203436302C DC8 "  460,800 "
+   \            3830302000  
+     69          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+     12   switch_interrupt
+       12   -> strcpy
+       12   -> update_string
+     12   switch_interrupt2
+       12   -> strcpy
+       12   -> update_string
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "  115,200 ">
+      11  ?<Constant "  460,800 ">
+       2  _A_PAIE_L
+       2  _A_PAIFG_L
+       2  _A_PBIE_L
+       2  _A_PBIFG_L
+       2  _A_TB0CCTL1_L
+       2  _A_TB0CCTL2_L
+       2  _A_UCA0BRW_L
+       2  _A_UCA0MCTLW_L
+       2  _A_UCA1BRW_L
+       2  _A_UCA1MCTLW_L
+      70  switch_interrupt
+      70  switch_interrupt2
+       2  switch_interrupt2::??INTVEC 48
+       2  switch_interrupt::??INTVEC 44
+
+ 
+  20 bytes in segment DATA16_AN
+  22 bytes in segment DATA16_C
+   4 bytes in segment INTVEC
+ 140 bytes in segment ISR_CODE
+ 
+ 140 bytes of CODE  memory
+  22 bytes of CONST memory (+  4 bytes shared)
+   0 bytes of DATA  memory (+ 20 bytes shared)
+
+Errors: none
+Warnings: none

@@ -1,0 +1,109 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:14
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\switches.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWB6BE.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\switches.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\switches.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\switches.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\switches.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file programs the switches to toggle GPIO and SMCLK modes
+      4          //
+      5          //  Ram Bala
+      6          //  Feb 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include "macros.h"
+     11          #include "functions.h"
+     12          #include  "msp430.h"
+     13          #include "string.h"
+     14          
+     15          // Global Variables
+     16          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     17          extern char *display[DISPLAY_SIZE];
+     18          extern volatile unsigned char update_display;
+     19          extern volatile unsigned int update_display_count;
+     20          
+
+   \                                 In  segment CODE, align 2
+     21          void Switches_Process(void) { // Right Switch
+   \                     Switches_Process:
+     22          	// if (!(P4IN & SW1)) {
+     23           //          Init_Port3(USE_GPIO); // If the right switch is selected, toggle GPIO
+     24           //    // Display setting, what display shows
+     25           //          strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     26           //          update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     27           //          strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     28           //          update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     29           //          strcpy(display_line[DL_SEC_INDEX], "   GPIO  ");
+     30           //          update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     31           //          enable_display_update();
+     32          	// }
+     33          	// if (!(P2IN & SW2)) { // Left Swi tch
+     34           //          Init_Port3(USE_SMCLK); // If the left switch is selected, toggle SMCLK
+     35           //    // Display setting
+     36           //          strcpy(display_line[DL_ZERO_INDEX], "   NCSU   ");
+     37           //          update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+     38           //          strcpy(display_line[DL_FIRST_INDEX], " WOLFPACK ");
+     39           //          update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+     40           //          strcpy(display_line[DL_SEC_INDEX], "   SMCLK  ");
+     41           //          update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+     42           //          enable_display_update();
+     43          	// }
+     44          }
+   \   000000   1001         RETA
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Switches_Process
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       2  Switches_Process
+
+ 
+ 2 bytes in segment CODE
+ 
+ 2 bytes of CODE memory
+
+Errors: none
+Warnings: none

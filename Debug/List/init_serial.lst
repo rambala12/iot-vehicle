@@ -1,0 +1,343 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\init_serial.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWAF02.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\init_serial.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\init_serial.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\init_serial.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\init_serial.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file initializes the serial communication registers    
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x500
+   \   union <unnamed> _A_UCA0CTLW0_L
+   \                     _A_UCA0CTLW0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x506
+   \   union <unnamed> _A_UCA0BRW_L
+   \                     _A_UCA0BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x508
+   \   union <unnamed> _A_UCA0MCTLW_L
+   \                     _A_UCA0MCTLW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51a
+   \   union <unnamed> _A_UCA0IE_L
+   \                     _A_UCA0IE_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x580
+   \   union <unnamed> _A_UCA1CTLW0_L
+   \                     _A_UCA1CTLW0_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x586
+   \   union <unnamed> _A_UCA1BRW_L
+   \                     _A_UCA1BRW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x588
+   \   union <unnamed> _A_UCA1MCTLW_L
+   \                     _A_UCA1MCTLW_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59a
+   \   union <unnamed> _A_UCA1IE_L
+   \                     _A_UCA1IE_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          
+     14          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     15          extern char *display[DISPLAY_SIZE];
+     16          extern volatile unsigned char update_display;
+     17          extern volatile unsigned int update_display_count;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          extern volatile int usb_rx_ring_wr = ZERO;
+   \                     usb_rx_ring_wr:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     19          volatile unsigned int usb_rx_ring_rd = ZERO;
+   \                     usb_rx_ring_rd:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     20          volatile unsigned int usb_tx_ring_wr = ZERO;
+   \                     usb_tx_ring_wr:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     21          volatile unsigned int usb_tx_ring_rd = ZERO;
+   \                     usb_tx_ring_rd:
+   \   000000                DS8 2
+     22          
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          volatile unsigned int iot_rx_ring_rd = ZERO;
+   \                     iot_rx_ring_rd:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          volatile unsigned int iot_tx_ring_wr = ZERO;
+   \                     iot_tx_ring_wr:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     25          volatile unsigned int iot_tx_ring_rd = ZERO;
+   \                     iot_tx_ring_rd:
+   \   000000                DS8 2
+     26          
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          extern volatile char USB_Char_Rx[SMALL_RING_SIZE] = {ZERO};
+   \                     USB_Char_Rx:
+   \   000000                DS8 64
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE] = {ZERO};
+   \                     IOT_Char_Rx:
+   \   000000                DS8 64
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          volatile char USB_Char_Tx[SMALL_RING_SIZE] = {ZERO};
+   \                     USB_Char_Tx:
+   \   000000                DS8 64
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     30          volatile char IOT_Char_Tx[SMALL_RING_SIZE] = {ZERO};
+   \                     IOT_Char_Tx:
+   \   000000                DS8 64
+     31          
+     32          // IOT
+
+   \                                 In  segment CODE, align 2
+     33          void Init_Serial_UCA0() { // machine --> project 8
+   \                     Init_Serial_UCA0:
+     34            int i;
+     35            for(i = ZERO; i < SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA0_0:
+   \   000002   3F904000     CMP.W   #0x40, R15
+   \   000006   0434         JGE     ??Init_Serial_UCA0_2
+     36              IOT_Char_Rx[i] = PORT_LOW; // USB Rx Buffer
+   \   000008   CF43....     MOV.B   #0x0, IOT_Char_Rx(R15)
+     37            }
+   \   00000C   1F53         ADD.W   #0x1, R15
+   \   00000E   F93F         JMP     ??Init_Serial_UCA0_0
+     38          
+     39            iot_tx_ring_wr = BEGINNING;
+   \                     ??Init_Serial_UCA0_2:
+   \   000010   8243....     MOV.W   #0x0, &iot_tx_ring_wr
+     40            iot_rx_ring_rd = BEGINNING;
+   \   000014   8243....     MOV.W   #0x0, &iot_rx_ring_rd
+     41          
+     42            for(i = ZERO; i < LARGE_RING_SIZE; i++){ // May not use this
+   \   000018   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA0_1:
+   \   00001A   3F900C00     CMP.W   #0xc, R15
+   \   00001E   0434         JGE     ??Init_Serial_UCA0_3
+     43              USB_Char_Tx[i] = PORT_LOW; // USB Tx Buffer
+   \   000020   CF43....     MOV.B   #0x0, USB_Char_Tx(R15)
+     44            }
+   \   000024   1F53         ADD.W   #0x1, R15
+   \   000026   F93F         JMP     ??Init_Serial_UCA0_1
+     45          
+     46            iot_tx_ring_wr = BEGINNING;
+   \                     ??Init_Serial_UCA0_3:
+   \   000028   8243....     MOV.W   #0x0, &iot_tx_ring_wr
+     47            iot_tx_ring_rd = BEGINNING;
+   \   00002C   8243....     MOV.W   #0x0, &iot_tx_ring_rd
+     48          
+     49            // set baud rate
+     50            UCA0BRW = INDEX_FOUR;
+   \   000030   A2420605     MOV.W   #0x4, &0x506
+     51            UCA0MCTLW = BAUD_RATE_ONE;
+   \   000034   B24051550805 MOV.W   #0x5551, &0x508
+     52          
+     53          
+     54            // Configure UART 0
+     55            UCA0CTLW0 = ZERO; // Use word register
+   \   00003A   82430005     MOV.W   #0x0, &0x500
+     56            UCA0CTLW0 |= UCSWRST; // Set Software reset enable
+   \   00003E   92D30005     BIS.W   #0x1, &0x500
+     57            UCA0CTLW0 |= UCSSEL__SMCLK; // Set SMCLK as fBRCLK
+   \   000042   B2D080000005 BIS.W   #0x80, &0x500
+     58          
+     59            UCA0CTLW0 &= ~ UCSWRST; // Set Software reset enable
+   \   000048   92C30005     BIC.W   #0x1, &0x500
+     60            UCA0IE |= UCRXIE; // Enable RX interrupt
+   \   00004C   92D31A05     BIS.W   #0x1, &0x51a
+     61          }
+   \   000050   1001         RETA
+   \   000052                REQUIRE _A_UCA0BRW_L
+   \   000052                REQUIRE _A_UCA0MCTLW_L
+   \   000052                REQUIRE _A_UCA0CTLW0_L
+   \   000052                REQUIRE _A_UCA0IE_L
+     62          
+     63          
+     64          // USB
+
+   \                                 In  segment CODE, align 2
+     65          void Init_Serial_UCA1() { // usb
+   \                     Init_Serial_UCA1:
+     66            int i;
+     67            for(i = ZERO; i < SMALL_RING_SIZE; i++){
+   \   000000   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA1_0:
+   \   000002   3F904000     CMP.W   #0x40, R15
+   \   000006   0434         JGE     ??Init_Serial_UCA1_2
+     68              USB_Char_Rx[i] = PORT_LOW; // USB Rx Buffer
+   \   000008   CF43....     MOV.B   #0x0, USB_Char_Rx(R15)
+     69            }
+   \   00000C   1F53         ADD.W   #0x1, R15
+   \   00000E   F93F         JMP     ??Init_Serial_UCA1_0
+     70            usb_rx_ring_wr = BEGINNING;
+   \                     ??Init_Serial_UCA1_2:
+   \   000010   8243....     MOV.W   #0x0, &usb_rx_ring_wr
+     71            usb_rx_ring_rd = BEGINNING;
+   \   000014   8243....     MOV.W   #0x0, &usb_rx_ring_rd
+     72          
+     73            for(i=ZERO; i<LARGE_RING_SIZE; i++){ // May not use this
+   \   000018   0F43         MOV.W   #0x0, R15
+   \                     ??Init_Serial_UCA1_1:
+   \   00001A   3F900C00     CMP.W   #0xc, R15
+   \   00001E   0434         JGE     ??Init_Serial_UCA1_3
+     74              USB_Char_Tx[i] = PORT_LOW; // USB Tx Buffer
+   \   000020   CF43....     MOV.B   #0x0, USB_Char_Tx(R15)
+     75            }
+   \   000024   1F53         ADD.W   #0x1, R15
+   \   000026   F93F         JMP     ??Init_Serial_UCA1_1
+     76            usb_tx_ring_wr = BEGINNING;
+   \                     ??Init_Serial_UCA1_3:
+   \   000028   8243....     MOV.W   #0x0, &usb_tx_ring_wr
+     77            usb_tx_ring_rd = BEGINNING;
+   \   00002C   8243....     MOV.W   #0x0, &usb_tx_ring_rd
+     78          
+     79            UCA1BRW = INDEX_FOUR;
+   \   000030   A2428605     MOV.W   #0x4, &0x586
+     80            UCA1MCTLW = BAUD_RATE_ONE;
+   \   000034   B24051558805 MOV.W   #0x5551, &0x588
+     81            
+     82            // Configure UART 0
+     83            UCA1CTLW0 = ZERO; // Use word register
+   \   00003A   82438005     MOV.W   #0x0, &0x580
+     84            UCA1CTLW0 |= UCSWRST; // Set Software reset enable
+   \   00003E   92D38005     BIS.W   #0x1, &0x580
+     85            UCA1CTLW0 |= UCSSEL__SMCLK; // Set SMCLK as fBRCLK
+   \   000042   B2D080008005 BIS.W   #0x80, &0x580
+     86          
+     87            UCA1CTLW0 &= ~ UCSWRST; // Set Software reset enable
+   \   000048   92C38005     BIC.W   #0x1, &0x580
+     88            UCA1IE |= UCRXIE; // Enable RX interrupt
+   \   00004C   92D39A05     BIS.W   #0x1, &0x59a
+     89          }
+   \   000050   1001         RETA
+   \   000052                REQUIRE _A_UCA1BRW_L
+   \   000052                REQUIRE _A_UCA1MCTLW_L
+   \   000052                REQUIRE _A_UCA1CTLW0_L
+   \   000052                REQUIRE _A_UCA1IE_L
+     90          
+     91          
+     92          
+     93          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Init_Serial_UCA0
+      4   Init_Serial_UCA1
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      64  IOT_Char_Rx
+      64  IOT_Char_Tx
+      82  Init_Serial_UCA0
+      82  Init_Serial_UCA1
+      64  USB_Char_Rx
+      64  USB_Char_Tx
+       2  _A_UCA0BRW_L
+       2  _A_UCA0CTLW0_L
+       2  _A_UCA0IE_L
+       2  _A_UCA0MCTLW_L
+       2  _A_UCA1BRW_L
+       2  _A_UCA1CTLW0_L
+       2  _A_UCA1IE_L
+       2  _A_UCA1MCTLW_L
+       2  iot_rx_ring_rd
+       2  iot_tx_ring_rd
+       2  iot_tx_ring_wr
+       2  usb_rx_ring_rd
+       2  usb_rx_ring_wr
+       2  usb_tx_ring_rd
+       2  usb_tx_ring_wr
+
+ 
+ 164 bytes in segment CODE
+  16 bytes in segment DATA16_AN
+ 270 bytes in segment DATA16_Z
+ 
+ 164 bytes of CODE memory
+ 270 bytes of DATA memory (+ 16 bytes shared)
+
+Errors: none
+Warnings: none

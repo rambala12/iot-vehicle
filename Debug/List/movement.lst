@@ -1,0 +1,291 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  18:18:13
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\movement.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWBC3D.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\movement.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\movement.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\movement.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\movement.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file programs the motors to move in certain shapes
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x454
+   \   union <unnamed> _A_TB3CCR1_L
+   \                     _A_TB3CCR1_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x456
+   \   union <unnamed> _A_TB3CCR2_L
+   \                     _A_TB3CCR2_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x458
+   \   union <unnamed> _A_TB3CCR3_L
+   \                     _A_TB3CCR3_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x45a
+   \   union <unnamed> _A_TB3CCR4_L
+   \                     _A_TB3CCR4_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          #include "ports.h"
+     14          
+
+   \                                 In  segment CODE, align 2
+     15          void Forward_On(unsigned int left, unsigned int right) {
+   \                     Forward_On:
+   \   000000   0F4C         MOV.W   R12, R15
+     16          	Reverse_Off();
+   \   000002   ........     CALLA   #Reverse_Off
+     17            rightWheelForOn(right); // given speed must be less than 20000
+   \   000006   0C4D         MOV.W   R13, R12
+   \   000008   ........     CALLA   #rightWheelForOn
+     18            leftWheelForOn(left);
+   \   00000C   0C4F         MOV.W   R15, R12
+   \   00000E   ........     BRA     #leftWheelForOn
+     19          }
+     20          
+
+   \                                 In  segment CODE, align 2
+     21          void Forward_Off() {
+   \                     Forward_Off:
+     22            rightWheelForOff();
+   \   000000   ........     CALLA   #rightWheelForOff
+     23            leftWheelForOff();
+   \   000004   ........     BRA     #leftWheelForOff
+     24          }
+     25          
+
+   \                                 In  segment CODE, align 2
+     26          void Reverse_On(unsigned int left, unsigned int right) {
+   \                     Reverse_On:
+   \   000000   0F4C         MOV.W   R12, R15
+     27          	Forward_Off();
+   \   000002   ........     CALLA   #Forward_Off
+     28          	rightWheelRevOn(right);
+   \   000006   0C4D         MOV.W   R13, R12
+   \   000008   ........     CALLA   #rightWheelRevOn
+     29          	leftWheelRevOn(left); // make sure speed * 2 is < 40000
+   \   00000C   0C4F         MOV.W   R15, R12
+   \   00000E   ........     BRA     #leftWheelRevOn
+     30          }
+     31          
+
+   \                                 In  segment CODE, align 2
+     32          void Reverse_Off() {
+   \                     Reverse_Off:
+     33          	rightWheelRevOff();
+   \   000000   ........     CALLA   #rightWheelRevOff
+     34          	leftWheelRevOff();
+   \   000004   ........     BRA     #leftWheelRevOff
+     35          }
+     36          
+
+   \                                 In  segment CODE, align 2
+     37          void rightWheelForOn(unsigned int speed) {
+   \                     rightWheelForOn:
+     38          	RIGHT_FORWARD_SPEED = speed; // 20000
+   \   000000   824C5404     MOV.W   R12, &0x454
+     39          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR1_L
+     40          
+
+   \                                 In  segment CODE, align 2
+     41          void leftWheelForOn(unsigned int speed) {
+   \                     leftWheelForOn:
+     42            LEFT_FORWARD_SPEED = speed; // 40000
+   \   000000   824C5604     MOV.W   R12, &0x456
+     43          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR2_L
+     44          
+
+   \                                 In  segment CODE, align 2
+     45          void rightWheelForOff() {
+   \                     rightWheelForOff:
+     46            RIGHT_FORWARD_SPEED = WHEEL_OFF;
+   \   000000   82435404     MOV.W   #0x0, &0x454
+     47          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR1_L
+     48          
+
+   \                                 In  segment CODE, align 2
+     49          void leftWheelForOff() {
+   \                     leftWheelForOff:
+     50            LEFT_FORWARD_SPEED = WHEEL_OFF;
+   \   000000   82435604     MOV.W   #0x0, &0x456
+     51          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR2_L
+     52          
+
+   \                                 In  segment CODE, align 2
+     53          void rightWheelRevOn(unsigned int speed) {
+   \                     rightWheelRevOn:
+     54          	RIGHT_REVERSE_SPEED = speed;
+   \   000000   824C5804     MOV.W   R12, &0x458
+     55          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR3_L
+     56          
+
+   \                                 In  segment CODE, align 2
+     57          void leftWheelRevOn(unsigned int speed) {
+   \                     leftWheelRevOn:
+     58          	LEFT_REVERSE_SPEED = speed;
+   \   000000   824C5A04     MOV.W   R12, &0x45a
+     59          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR4_L
+     60          
+
+   \                                 In  segment CODE, align 2
+     61          void rightWheelRevOff() {
+   \                     rightWheelRevOff:
+     62          	RIGHT_REVERSE_SPEED = WHEEL_OFF;
+   \   000000   82435804     MOV.W   #0x0, &0x458
+     63          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR3_L
+     64          
+
+   \                                 In  segment CODE, align 2
+     65          void leftWheelRevOff() {
+   \                     leftWheelRevOff:
+     66          	LEFT_REVERSE_SPEED = WHEEL_OFF;
+   \   000000   82435A04     MOV.W   #0x0, &0x45a
+     67          }
+   \   000004   1001         RETA
+   \   000006                REQUIRE _A_TB3CCR4_L
+     68          
+
+   \                                 In  segment CODE, align 2
+     69          void Left_Turn(unsigned int speed) {
+   \                     Left_Turn:
+     70          	RIGHT_FORWARD_SPEED = speed;
+   \   000000   824C5404     MOV.W   R12, &0x454
+     71          	leftWheelForOff();
+   \   000004   ........     BRA     #leftWheelForOff
+   \   000008                REQUIRE _A_TB3CCR1_L
+     72          }
+     73          
+
+   \                                 In  segment CODE, align 2
+     74          void Right_Turn(unsigned int speed) {
+   \                     Right_Turn:
+     75          	LEFT_FORWARD_SPEED = speed;
+   \   000000   824C5604     MOV.W   R12, &0x456
+     76          	rightWheelForOff();
+   \   000004   ........     BRA     #rightWheelForOff
+   \   000008                REQUIRE _A_TB3CCR2_L
+     77          }
+     78          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Forward_Off
+        0   -> leftWheelForOff
+        4   -> rightWheelForOff
+      4   Forward_On
+        4   -> Reverse_Off
+        0   -> leftWheelForOn
+        4   -> rightWheelForOn
+      4   Left_Turn
+        0   -> leftWheelForOff
+      4   Reverse_Off
+        0   -> leftWheelRevOff
+        4   -> rightWheelRevOff
+      4   Reverse_On
+        4   -> Forward_Off
+        0   -> leftWheelRevOn
+        4   -> rightWheelRevOn
+      4   Right_Turn
+        0   -> rightWheelForOff
+      4   leftWheelForOff
+      4   leftWheelForOn
+      4   leftWheelRevOff
+      4   leftWheelRevOn
+      4   rightWheelForOff
+      4   rightWheelForOn
+      4   rightWheelRevOff
+      4   rightWheelRevOn
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       8  Forward_Off
+      18  Forward_On
+       8  Left_Turn
+       8  Reverse_Off
+      18  Reverse_On
+       8  Right_Turn
+       2  _A_TB3CCR1_L
+       2  _A_TB3CCR2_L
+       2  _A_TB3CCR3_L
+       2  _A_TB3CCR4_L
+       6  leftWheelForOff
+       6  leftWheelForOn
+       6  leftWheelRevOff
+       6  leftWheelRevOn
+       6  rightWheelForOff
+       6  rightWheelForOn
+       6  rightWheelRevOff
+       6  rightWheelRevOn
+
+ 
+ 116 bytes in segment CODE
+   8 bytes in segment DATA16_AN
+ 
+ 116 bytes of CODE memory
+   0 bytes of DATA memory (+ 8 bytes shared)
+
+Errors: none
+Warnings: none

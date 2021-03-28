@@ -1,0 +1,239 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:13
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\led.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWB35E.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\led.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\led.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\led.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\led.c
+      1          // ------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the LED Initialization
+      4          //
+      5          //  Ram Bala
+      6          //  Jan 2019
+      7          //  Built with IAR Embedded Workbench Version: V7.12.1
+      8          // ------------------------------------------------------------------------------
+      9          
+     10          #include  "functions.h"
+     11          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x202
+   \   union <unnamed> _A_PAOUT_L
+   \                     _A_PAOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+     12          #include "macros.h"
+     13          
+     14          extern volatile unsigned char display_changed;
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     15          extern volatile char one_time = ONE;
+   \                     one_time:
+   \   000000                DS8 1
+   \   000001                REQUIRE `?<Initializer for one_time>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     16          extern volatile unsigned int Time_Sequence = ZERO;
+   \                     Time_Sequence:
+   \   000000                DS8 2
+     17          
+     18          
+
+   \                                 In  segment CODE, align 2
+     19          void Init_LEDs(void){
+   \                     Init_LEDs:
+     20          //------------------------------------------------------------------------------
+     21          // LED Configurations
+     22          //------------------------------------------------------------------------------
+     23          // Turns on both LEDs
+     24            GREEN_LED_OFF;
+   \   000000   F2C040004302 BIC.B   #0x40, &0x243
+     25            RED_LED_OFF;
+   \   000006   D2C30202     BIC.B   #0x1, &0x202
+     26          //------------------------------------------------------------------------------
+     27          }
+   \   00000A   1001         RETA
+   \   00000C                REQUIRE _A_PCOUT_L
+   \   00000C                REQUIRE _A_PAOUT_L
+     28          
+
+   \                                 In  segment CODE, align 2
+     29          void LEDs_Blink(void) {
+   \                     LEDs_Blink:
+     30          	switch(Time_Sequence){
+   \   000000   1F42....     MOV.W   &Time_Sequence, R15
+   \   000004   3F800500     SUB.W   #0x5, R15
+   \   000008   3D24         JEQ     ??LEDs_Blink_5
+   \   00000A   3F800500     SUB.W   #0x5, R15
+   \   00000E   2D24         JEQ     ??LEDs_Blink_6
+   \   000010   3F800500     SUB.W   #0x5, R15
+   \   000014   1F24         JEQ     ??LEDs_Blink_7
+   \   000016   3F800500     SUB.W   #0x5, R15
+   \   00001A   0F24         JEQ     ??LEDs_Blink_8
+   \   00001C   3F800500     SUB.W   #0x5, R15
+   \   000020   3B20         JNE     ??LEDs_Blink_4
+     31               case S1250:                        //
+     32                if(one_time){
+   \   000022   C293....     CMP.B   #0x0, &one_time
+   \   000026   0624         JEQ     ??LEDs_Blink_9
+     33                  Init_LEDs();
+   \   000028   ........     CALLA   #Init_LEDs
+     34                  //lcd_BIG_mid();
+     35                  display_changed = HIGH;
+   \   00002C   D243....     MOV.B   #0x1, &display_changed
+     36                  one_time = LOW;
+   \   000030   C243....     MOV.B   #0x0, &one_time
+     37                }
+     38                Time_Sequence = LOW;             //
+   \                     ??LEDs_Blink_9:
+   \   000034   8243....     MOV.W   #0x0, &Time_Sequence
+     39                break;
+   \   000038   1001         RETA
+     40              case S1000:                        //
+     41                if(one_time){
+   \                     ??LEDs_Blink_8:
+   \   00003A   C293....     CMP.B   #0x0, &one_time
+   \   00003E   0524         JEQ     ??LEDs_Blink_10
+     42                  GREEN_LED_ON;            // Change State of LED 5
+   \   000040   F2D040004302 BIS.B   #0x40, &0x243
+     43                  one_time = LOW;
+   \   000046   C243....     MOV.B   #0x0, &one_time
+     44                }
+     45                R_WHEEL_OFF;
+   \                     ??LEDs_Blink_10:
+   \   00004A   D2C34302     BIC.B   #0x1, &0x243
+     46                L_WHEEL_OFF;
+   \   00004E   E2C34302     BIC.B   #0x2, &0x243
+     47                break;
+   \   000052   1001         RETA
+     48              case S750:                         //
+     49                if(one_time){
+   \                     ??LEDs_Blink_7:
+   \   000054   C293....     CMP.B   #0x0, &one_time
+   \   000058   1F24         JEQ     ??LEDs_Blink_4
+     50                  RED_LED_ON;            // Change State of LED 4
+   \   00005A   D2D30202     BIS.B   #0x1, &0x202
+     51                  GREEN_LED_OFF;           // Change State of LED 5
+   \   00005E   F2C040004302 BIC.B   #0x40, &0x243
+     52                  one_time = LOW;
+   \   000064   C243....     MOV.B   #0x0, &one_time
+     53                }
+     54                break;
+   \   000068   1001         RETA
+     55              case S500:                         //
+     56                if(one_time){
+   \                     ??LEDs_Blink_6:
+   \   00006A   C293....     CMP.B   #0x0, &one_time
+   \   00006E   1424         JEQ     ??LEDs_Blink_4
+     57                  lcd_4line();
+   \   000070   ........     CALLA   #lcd_4line
+     58                  GREEN_LED_ON;            // Change State of LED 5
+   \   000074   F2D040004302 BIS.B   #0x40, &0x243
+     59                  display_changed = HIGH;
+   \   00007A   D243....     MOV.B   #0x1, &display_changed
+     60                  one_time = LOW;
+   \   00007E   C243....     MOV.B   #0x0, &one_time
+     61                }
+     62                break;
+   \   000082   1001         RETA
+     63              case S250:                        //
+     64                if(one_time){
+   \                     ??LEDs_Blink_5:
+   \   000084   C293....     CMP.B   #0x0, &one_time
+   \   000088   0724         JEQ     ??LEDs_Blink_4
+     65                  RED_LED_OFF;           // Change State of LED 4
+   \   00008A   D2C30202     BIC.B   #0x1, &0x202
+     66                  GREEN_LED_OFF;           // Change State of LED 5
+   \   00008E   F2C040004302 BIC.B   #0x40, &0x243
+     67                  one_time = LOW;
+   \   000094   C243....     MOV.B   #0x0, &one_time
+     68                }
+     69                break;                         //
+     70              default: break;
+     71            }
+     72          }
+   \                     ??LEDs_Blink_4:
+   \   000098   1001         RETA
+   \   00009A                REQUIRE _A_PCOUT_L
+   \   00009A                REQUIRE _A_PAOUT_L
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for one_time>`:
+   \   000000   01           DC8 1
+     73          
+     74          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   Init_LEDs
+      4   LEDs_Blink
+        4   -> Init_LEDs
+        4   -> lcd_4line
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+       1  ?<Initializer for one_time>
+      12  Init_LEDs
+     154  LEDs_Blink
+       2  Time_Sequence
+       2  _A_PAOUT_L
+       2  _A_PCOUT_L
+       1  one_time
+
+ 
+ 166 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+   1 byte  in segment DATA16_I
+   1 byte  in segment DATA16_ID
+   2 bytes in segment DATA16_Z
+ 
+ 166 bytes of CODE  memory
+   1 byte  of CONST memory
+   3 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

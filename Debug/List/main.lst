@@ -1,0 +1,347 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           25/Apr/2019  19:26:06
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\main.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EW1492.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\main.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\main.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\main.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\main.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the Main Routine - "While" Operating System
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Jan 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          //------------------------------------------------------------------------------
+     12          #include  "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x242
+   \   union <unnamed> _A_PCOUT_L
+   \                     _A_PCOUT_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x130
+   \   union <unnamed> _A_PM5CTL0_L
+   \                     _A_PM5CTL0_L:
+   \   000000                DS8 2
+     14          #include <string.h>
+     15          #include "macros.h"
+     16          
+     17          // Function Prototypes
+     18          void main(void);
+     19          void Init_Conditions(void);
+     20          void Init_LEDs(void);
+     21          
+     22           // Global Variables
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          volatile char slow_input_down;
+   \                     slow_input_down:
+   \   000000                DS8 1
+     24          extern char display_line[DISPLAY_LINE_SIZE1][DISPLAY_LINE_SIZE2];
+     25          extern char *display[DISPLAY_SIZE];
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          unsigned char display_mode;
+   \                     display_mode:
+   \   000000                DS8 1
+     27          extern volatile unsigned char display_changed;
+     28          extern volatile unsigned char update_display;
+     29          extern volatile unsigned int update_display_count;
+     30          // ADC display array
+     31          
+     32          extern volatile unsigned int Time_Sequence;
+     33          extern volatile char one_time;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     34          unsigned int test_value;
+   \                     test_value:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          char chosen_direction;
+   \                     chosen_direction:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     36          char change;
+   \                     change:
+   \   000000                DS8 1
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     37          extern volatile unsigned int ADC_Thumb = ZERO;
+   \                     ADC_Thumb:
+   \   000000                DS8 2
+     38          extern unsigned int UCA1_index;
+     39          extern unsigned int UCA0_index;
+     40          extern char test_command[INDEX_TEN];
+     41          extern volatile int START_IOT;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     42          extern volatile int initialize = ZERO;
+   \                     initialize:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          extern volatile int START_MOVE = ZERO;
+   \                     START_MOVE:
+   \   000000                DS8 2
+     44          extern volatile int transcribe_done;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     45          extern int disp_iot = ZERO;
+   \                     disp_iot:
+   \   000000                DS8 2
+     46          
+     47          
+
+   \                                 In  segment CODE, align 2
+     48          void main(void){
+   \                     main:
+     49          //------------------------------------------------------------------------------
+     50          // Main Program
+     51          // This is the main routine for the program. Execution of code starts here.
+     52          // The operating system is Back Ground Fore Ground.
+     53          //
+     54          //------------------------------------------------------------------------------
+     55          // Disable the GPIO power-on default high-impedance mode to activate
+     56          // previously configured port settings
+     57            PM5CTL0 &= ~LOCKLPM5;
+   \   000000   92C33001     BIC.W   #0x1, &0x130
+     58            Init_Ports();                        // Initialize Ports
+   \   000004   ........     CALLA   #Init_Ports
+     59            Init_Clocks();                       // Initialize Clock System
+   \   000008   ........     CALLA   #Init_Clocks
+     60            Init_Conditions();                   // Initialize Variables and Initial Conditions
+   \   00000C   ........     CALLA   #Init_Conditions
+     61            Init_Serial_UCA0();
+   \   000010   ........     CALLA   #Init_Serial_UCA0
+     62            Init_Serial_UCA1();
+   \   000014   ........     CALLA   #Init_Serial_UCA1
+     63            Init_Timers();                       // Initialize Timers
+   \   000018   ........     CALLA   #Init_Timers
+     64            Init_LCD();                          // Initialize LCD
+   \   00001C   ........     CALLA   #Init_LCD
+     65            Init_ADC();                          // Initialize ADC
+   \   000020   ........     CALLA   #Init_ADC
+     66          //  __delay_cycles(1000000);
+     67          // Place the contents of what you want on the display, in between the quotes
+     68          // Limited to 10 characters per line
+     69          //
+     70          
+     71            strcpy(display_line[DL_ZERO_INDEX], "WAITING   ");
+   \   000024   3D40....     MOV.W   #`?<Constant "WAITING   ">`, R13
+   \   000028   3C40....     MOV.W   #display_line, R12
+   \   00002C   ........     CALLA   #strcpy
+     72            update_string(display_line[DL_ZERO_INDEX], DL_ZERO_INDEX);
+   \   000030   0D43         MOV.W   #0x0, R13
+   \   000032   ........     CALLA   #update_string
+     73            strcpy(display_line[DL_FIRST_INDEX], "FOR INPUT ");
+   \   000036   3D40....     MOV.W   #`?<Constant "FOR INPUT ">`, R13
+   \   00003A   3C40....     MOV.W   #display_line + 11, R12
+   \   00003E   ........     CALLA   #strcpy
+     74            update_string(display_line[DL_FIRST_INDEX], DL_FIRST_INDEX);
+   \   000042   1D43         MOV.W   #0x1, R13
+   \   000044   3C40....     MOV.W   #display_line + 11, R12
+   \   000048   ........     CALLA   #update_string
+     75            strcpy(display_line[DL_SEC_INDEX], "          ");
+   \   00004C   3D40....     MOV.W   #`?<Constant "          ">`, R13
+   \   000050   3C40....     MOV.W   #display_line + 22, R12
+   \   000054   ........     CALLA   #strcpy
+     76            update_string(display_line[DL_THIRD_INDEX], DL_THIRD_INDEX);
+   \   000058   3D400300     MOV.W   #0x3, R13
+   \   00005C   3C40....     MOV.W   #display_line + 33, R12
+   \   000060   ........     CALLA   #update_string
+     77           Display_Update(INDEX_THREE,INDEX_ONE,ZERO,ZERO);
+   \   000064   4F43         MOV.B   #0x0, R15
+   \   000066   4E43         MOV.B   #0x0, R14
+   \   000068   5D43         MOV.B   #0x1, R13
+   \   00006A   7C400300     MOV.B   #0x3, R12
+   \   00006E   ........     CALLA   #Display_Update
+     78          
+     79          //------------------------------------------------------------------------------
+     80          // Begining of the "While" Operating System
+     81          //------------------------------------------------------------------------------
+     82            while(ALWAYS) {                      // Can the Operating system run
+     83              if (START_IOT) {
+   \                     ??main_0:
+   \   000072   8293....     CMP.W   #0x0, &START_IOT
+   \   000076   0424         JEQ     ??main_1
+     84                P5OUT |= IOT_RESET;
+   \   000078   D2D34202     BIS.B   #0x1, &0x242
+     85                START_IOT = ZERO;
+   \   00007C   8243....     MOV.W   #0x0, &START_IOT
+     86              }
+     87          
+     88              LEDs_Blink();
+   \                     ??main_1:
+   \   000080   ........     CALLA   #LEDs_Blink
+     89              Line_Position();
+   \   000084   ........     CALLA   #Line_Position
+     90          
+     91              if (initialize) {
+   \   000088   8293....     CMP.W   #0x0, &initialize
+   \   00008C   0624         JEQ     ??main_2
+     92                // use first couple of seconds to initialize everything needed for IOT
+     93                initialize_iot();
+   \   00008E   ........     CALLA   #initialize_iot
+     94                disp_iot = INDEX_ONE;
+   \   000092   9243....     MOV.W   #0x1, &disp_iot
+     95                initialize = ZERO; // will never enter this if statement again
+   \   000096   8243....     MOV.W   #0x0, &initialize
+     96              }
+     97              
+     98              if (disp_iot) {
+   \                     ??main_2:
+   \   00009A   8293....     CMP.W   #0x0, &disp_iot
+   \   00009E   0224         JEQ     ??main_3
+     99                // Display_Clock();
+    100                Display_IP(); // display IP
+   \   0000A0   ........     CALLA   #Display_IP
+    101                // Display_Pads();
+    102              }
+    103          
+    104              if (transcribe_done) {
+   \                     ??main_3:
+   \   0000A4   8293....     CMP.W   #0x0, &transcribe_done
+   \   0000A8   0224         JEQ     ??main_4
+    105                interpret_commands(); // if new command is detected, run it
+   \   0000AA   ........     CALLA   #interpret_commands
+    106              }   
+    107          
+    108          
+    109          
+    110              Switches_Process();                // Check for switch state change
+   \                     ??main_4:
+   \   0000AE   ........     CALLA   #Switches_Process
+    111              Display_Process();
+   \   0000B2   ........     CALLA   #Display_Process
+   \   0000B6   DD3F         JMP     ??main_0
+   \   0000B8   0343         NOP
+   \   0000BA                REQUIRE _A_PM5CTL0_L
+   \   0000BA                REQUIRE _A_PCOUT_L
+    112          
+    113          
+    114          //    Wheels();  
+    115            }
+    116          //------------------------------------------------------------------------------
+    117          }
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "WAITING   ">`:
+   \   000000   57414954494E DC8 "WAITING   "
+   \            4720202000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "FOR INPUT ">`:
+   \   000000   464F5220494E DC8 "FOR INPUT "
+   \            5055542000  
+
+   \                                 In  segment DATA16_C, align 1, align-sorted
+   \                     `?<Constant "          ">`:
+   \   000000   202020202020 DC8 "          "
+   \            2020202000  
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      4   main
+        4   -> Display_IP
+        4   -> Display_Process
+        4   -> Display_Update
+        4   -> Init_ADC
+        4   -> Init_Clocks
+        4   -> Init_Conditions
+        4   -> Init_LCD
+        4   -> Init_Ports
+        4   -> Init_Serial_UCA0
+        4   -> Init_Serial_UCA1
+        4   -> Init_Timers
+        4   -> LEDs_Blink
+        4   -> Line_Position
+        4   -> Switches_Process
+        4   -> initialize_iot
+        4   -> interpret_commands
+        4   -> strcpy
+        4   -> update_string
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      11  ?<Constant "          ">
+      11  ?<Constant "FOR INPUT ">
+      11  ?<Constant "WAITING   ">
+       2  ADC_Thumb
+       2  START_MOVE
+       2  _A_PCOUT_L
+       2  _A_PM5CTL0_L
+       1  change
+       1  chosen_direction
+       2  disp_iot
+       1  display_mode
+       2  initialize
+     186  main
+       1  slow_input_down
+       2  test_value
+
+ 
+ 186 bytes in segment CODE
+   4 bytes in segment DATA16_AN
+  33 bytes in segment DATA16_C
+  14 bytes in segment DATA16_Z
+ 
+ 186 bytes of CODE  memory
+  33 bytes of CONST memory
+  14 bytes of DATA  memory (+ 4 bytes shared)
+
+Errors: none
+Warnings: none

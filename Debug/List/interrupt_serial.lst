@@ -1,0 +1,618 @@
+###############################################################################
+#
+# IAR C/C++ Compiler V7.12.1.987/W32 for MSP430           23/Apr/2019  18:40:12
+# Copyright 1996-2018 IAR Systems AB.
+# PC-locked license - IAR Embedded Workbench for Texas Instruments MSP430, 8K KickStart Edition 7.12
+#
+#    __rt_version  =  3
+#    __double_size =  32
+#    __reg_r4      =  free
+#    __reg_r5      =  free
+#    __pic         =  no
+#    __core        =  430X
+#    __data_model  =  small
+#    __code_model  =  large
+#    Source file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupt_serial.c
+#    Command line  =  
+#        -f C:\Users\rambala\AppData\Local\Temp\EWB06C.tmp
+#        ("\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\interrupt_serial.c" -lC
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List" -o
+#        "\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj" --no_cse --no_unroll --no_inline --no_code_motion
+#        --no_tbaa --debug -D__MSP430FR2355__ -e --double=32 --dlib_config
+#        "C:\Program Files (x86)\IAR Systems\Embedded Workbench
+#        8.0\430\lib\dlib\dl430xlsfn.h" -I ./\ --core=430X --data_model=small
+#        -On --multiplier=32 --hw_workaround=CPU40 --code_model=large)
+#    Locale        =  English_USA.1252
+#    List file     =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\List\interrupt_serial.lst
+#    Object file   =  
+#        \\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project
+#        10\Debug\Obj\interrupt_serial.r43
+#
+###############################################################################
+
+\\Mac\Home\Desktop\ECE306\autonomous-iot-vehicle\Projects\Project 10\interrupt_serial.c
+      1          //------------------------------------------------------------------------------
+      2          //
+      3          //  Description: This file contains the interrupt 
+      4          //
+      5          //
+      6          //  Ram Bala
+      7          //  Feb 2019
+      8          //  Built with IAR Embedded Workbench Version: V4.10A/W32 (7.11.2)
+      9          //------------------------------------------------------------------------------
+     10          
+     11          #include "macros.h"
+     12          #include "functions.h"
+     13          #include  "msp430.h"
+
+   \                                 In  segment DATA16_AN, at 0x50c
+   \   union <unnamed> _A_UCA0RXBUF_L
+   \                     _A_UCA0RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x50e
+   \   union <unnamed> _A_UCA0TXBUF_L
+   \                     _A_UCA0TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x51e
+   \   union <unnamed> _A_UCA0IV_L
+   \                     _A_UCA0IV_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58c
+   \   union <unnamed> _A_UCA1RXBUF_L
+   \                     _A_UCA1RXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x58e
+   \   union <unnamed> _A_UCA1TXBUF_L
+   \                     _A_UCA1TXBUF_L:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_AN, at 0x59e
+   \   union <unnamed> _A_UCA1IV_L
+   \                     _A_UCA1IV_L:
+   \   000000                DS8 2
+     14          #include "string.h"
+     15          
+     16          
+     17          extern volatile int usb_rx_ring_wr;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     18          extern volatile int iot_rx_ring_wr = ZERO;
+   \                     iot_rx_ring_wr:
+   \   000000                DS8 2
+     19          extern volatile char USB_Char_Rx[SMALL_RING_SIZE];
+     20          extern volatile char IOT_Char_Rx[SMALL_RING_SIZE];
+     21          extern char carryVariables[INDEX_TEN];
+
+   \                                 In  segment DATA16_I, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_copy
+     22          extern char test_command[INDEX_TEN] = " NCSU  #1 ";
+   \                     test_command:
+   \   000000                DS8 10
+   \   00000A                REQUIRE `?<Initializer for test_command>`
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     23          extern unsigned int UCA1_index = ZERO;
+   \                     UCA1_index:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     24          extern unsigned int UCA0_index = ZERO;
+   \                     UCA0_index:
+   \   000000                DS8 2
+     25          extern volatile int serial_state; // 0: wait, 1: received
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     26          extern int start_copy_iot = ZERO;
+   \                     start_copy_iot:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     27          extern int start_copy_usb = ZERO;
+   \                     start_copy_usb:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     28          extern unsigned int temp2 = ZERO;
+   \                     temp2:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     29          extern unsigned int temp = ZERO;
+   \                     temp:
+   \   000000                DS8 2
+     30          
+     31          // arrays for information
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     32          extern volatile int get_command = ZERO;
+   \                     get_command:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     33          extern volatile int command_start = ZERO;
+   \                     command_start:
+   \   000000                DS8 2
+     34          extern volatile int ip_reached;
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     35          volatile int dis_fix;
+   \                     dis_fix:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     36          extern volatile char command[COMMAND_SIZE] = {ZERO};
+   \                     command:
+   \   000000                DS8 20
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     37          extern volatile char ip_address[IP_SIZE] = {ZERO};
+   \                     ip_address:
+   \   000000                DS8 30
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     38          int input = ZERO;
+   \                     input:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     39          int input2 = ZERO;
+   \                     input2:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 1, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     40          char temp_char = ZERO;
+   \                     temp_char:
+   \   000000                DS8 1
+     41          
+     42          // states
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     43          int IP_READ_STATE = ZERO;
+   \                     IP_READ_STATE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     44          int DIS_READ_STATE = ZERO;
+   \                     DIS_READ_STATE:
+   \   000000                DS8 2
+
+   \                                 In  segment DATA16_Z, align 2, align-sorted
+   \   000000                REQUIRE ?cstart_init_zero
+     45          extern volatile int transcribe_done = ZERO;
+   \                     transcribe_done:
+   \   000000                DS8 2
+     46          extern volatile int START_MOVE;
+     47          
+     48          
+     49          // SERIAL PORT INTERRUPTS ===========================================================
+     50          
+     51          // IOT ==============================================================================
+     52          // check if command starts with $
+     53          #pragma vector = EUSCI_A0_VECTOR // machine
+
+   \                                 In  segment ISR_CODE, align 2
+     54          __interrupt void eUSCI_A0_ISR(void) { // is activated when a command is received
+   \                     eUSCI_A0_ISR:
+   \   000000   1F15         PUSHM.W #0x2, R15
+     55          //int i;
+     56          // once interrupt is received, change state to RECEIVE
+     57          
+     58          
+     59          switch(__even_in_range(UCA0IV,INTERRUPT8)) {
+   \   000002   1F421E05     MOV.W   &0x51e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A0_ISR>_0`:
+   \   000008   9A3C         JMP     ??eUSCI_A0_ISR_1
+   \   00000A   033C         JMP     ??eUSCI_A0_ISR_23
+   \   00000C   983C         JMP     ??eUSCI_A0_ISR_1
+   \   00000E   973C         JMP     ??eUSCI_A0_ISR_1
+   \   000010   963C         JMP     ??eUSCI_A0_ISR_1
+     60            case ZERO: // Vector 0 - no interrupt
+     61              break;
+     62            case INDEX_TWO: // Vector 2 - RXIFG
+     63              temp2 = iot_rx_ring_wr++;
+   \                     ??eUSCI_A0_ISR_23:
+   \   000012   1F42....     MOV.W   &iot_rx_ring_wr, R15
+   \   000016   0E4F         MOV.W   R15, R14
+   \   000018   1E53         ADD.W   #0x1, R14
+   \   00001A   824E....     MOV.W   R14, &iot_rx_ring_wr
+   \   00001E   824F....     MOV.W   R15, &temp2
+     64              temp_char = UCA0RXBUF;
+   \   000022   1E420C05     MOV.W   &0x50c, R14
+   \   000026   C24E....     MOV.B   R14, &temp_char
+     65          
+     66              // getting the command
+     67              // register index of when command starts
+     68              if (temp_char == '$') {
+   \   00002A   F2902400.... CMP.B   #0x24, &temp_char
+   \   000030   0420         JNE     ??eUSCI_A0_ISR_9
+     69                get_command = INDEX_ONE;
+   \   000032   9243....     MOV.W   #0x1, &get_command
+     70                START_MOVE = INDEX_ONE;
+   \   000036   9243....     MOV.W   #0x1, &START_MOVE
+     71              }
+     72              if (get_command) {
+   \                     ??eUSCI_A0_ISR_9:
+   \   00003A   8293....     CMP.W   #0x0, &get_command
+   \   00003E   1424         JEQ     ??eUSCI_A0_ISR_7
+     73                if (temp_char != '\r') {
+   \   000040   F2900D00.... CMP.B   #0xd, &temp_char
+   \   000046   0824         JEQ     ??eUSCI_A0_ISR_10
+     74                  command[input] = temp_char;
+   \   000048   1F42....     MOV.W   &input, R15
+   \   00004C   DF42........ MOV.B   &temp_char, command(R15)
+     75                  input++;
+   \   000052   9253....     ADD.W   #0x1, &input
+   \   000056   083C         JMP     ??eUSCI_A0_ISR_7
+     76                } else { // at this point the command is done being transcribed
+     77                  command[INDEX_NINETEEN] = ZERO;
+   \                     ??eUSCI_A0_ISR_10:
+   \   000058   C243....     MOV.B   #0x0, &command + 19
+     78                  transcribe_done = INDEX_ONE;
+   \   00005C   9243....     MOV.W   #0x1, &transcribe_done
+     79                  input = ZERO;
+   \   000060   8243....     MOV.W   #0x0, &input
+     80                  get_command = ZERO;
+   \   000064   8243....     MOV.W   #0x0, &get_command
+     81                }
+     82              }
+     83          
+     84              // getting the ip address
+     85              // use switch case
+     86              switch (IP_READ_STATE) {
+   \                     ??eUSCI_A0_ISR_7:
+   \   000068   1F42....     MOV.W   &IP_READ_STATE, R15
+   \   00006C   0F83         SUB.W   #0x0, R15
+   \   00006E   0924         JEQ     ??eUSCI_A0_ISR_11
+   \   000070   1F83         SUB.W   #0x1, R15
+   \   000072   1124         JEQ     ??eUSCI_A0_ISR_12
+   \   000074   1F83         SUB.W   #0x1, R15
+   \   000076   1924         JEQ     ??eUSCI_A0_ISR_13
+   \   000078   1F83         SUB.W   #0x1, R15
+   \   00007A   2224         JEQ     ??eUSCI_A0_ISR_14
+   \   00007C   1F83         SUB.W   #0x1, R15
+   \   00007E   2A24         JEQ     ??eUSCI_A0_ISR_15
+   \   000080   343C         JMP     ??eUSCI_A0_ISR_6
+     87                case IS_IT_A:
+     88                  if (temp_char == 'a') {
+   \                     ??eUSCI_A0_ISR_11:
+   \   000082   F2906100.... CMP.B   #0x61, &temp_char
+   \   000088   0320         JNE     ??eUSCI_A0_ISR_16
+     89                    IP_READ_STATE = IS_IT_D1;
+   \   00008A   9243....     MOV.W   #0x1, &IP_READ_STATE
+   \   00008E   2D3C         JMP     ??eUSCI_A0_ISR_6
+     90                  } else {
+     91                    IP_READ_STATE = IS_IT_A;
+   \                     ??eUSCI_A0_ISR_16:
+   \   000090   8243....     MOV.W   #0x0, &IP_READ_STATE
+     92                  }
+     93                  break;
+   \   000094   2A3C         JMP     ??eUSCI_A0_ISR_6
+     94                case IS_IT_D1:
+     95                  if (temp_char == 'd') {
+   \                     ??eUSCI_A0_ISR_12:
+   \   000096   F2906400.... CMP.B   #0x64, &temp_char
+   \   00009C   0320         JNE     ??eUSCI_A0_ISR_17
+     96                    IP_READ_STATE = IS_IT_D2;
+   \   00009E   A243....     MOV.W   #0x2, &IP_READ_STATE
+   \   0000A2   233C         JMP     ??eUSCI_A0_ISR_6
+     97                  } else {
+     98                    IP_READ_STATE = IS_IT_A;
+   \                     ??eUSCI_A0_ISR_17:
+   \   0000A4   8243....     MOV.W   #0x0, &IP_READ_STATE
+     99                  }
+    100                  break;
+   \   0000A8   203C         JMP     ??eUSCI_A0_ISR_6
+    101                case IS_IT_D2:
+    102                  if (temp_char == 'd') {
+   \                     ??eUSCI_A0_ISR_13:
+   \   0000AA   F2906400.... CMP.B   #0x64, &temp_char
+   \   0000B0   0420         JNE     ??eUSCI_A0_ISR_18
+    103                    IP_READ_STATE = IS_IT_R;
+   \   0000B2   B2400300.... MOV.W   #0x3, &IP_READ_STATE
+   \   0000B8   183C         JMP     ??eUSCI_A0_ISR_6
+    104                  } else {
+    105                    IP_READ_STATE = IS_IT_A;
+   \                     ??eUSCI_A0_ISR_18:
+   \   0000BA   8243....     MOV.W   #0x0, &IP_READ_STATE
+    106                  }
+    107                  break;
+   \   0000BE   153C         JMP     ??eUSCI_A0_ISR_6
+    108                case IS_IT_R:
+    109                  if (temp_char == 'r') {
+   \                     ??eUSCI_A0_ISR_14:
+   \   0000C0   F2907200.... CMP.B   #0x72, &temp_char
+   \   0000C6   0320         JNE     ??eUSCI_A0_ISR_19
+    110                    IP_READ_STATE = IS_IT_EQ;
+   \   0000C8   A242....     MOV.W   #0x4, &IP_READ_STATE
+   \   0000CC   0E3C         JMP     ??eUSCI_A0_ISR_6
+    111                  } else {
+    112                    IP_READ_STATE = IS_IT_A;
+   \                     ??eUSCI_A0_ISR_19:
+   \   0000CE   8243....     MOV.W   #0x0, &IP_READ_STATE
+    113                  }
+    114                  break;
+   \   0000D2   0B3C         JMP     ??eUSCI_A0_ISR_6
+    115                case IS_IT_EQ:
+    116                  if (temp_char == '=') {
+   \                     ??eUSCI_A0_ISR_15:
+   \   0000D4   F2903D00.... CMP.B   #0x3d, &temp_char
+   \   0000DA   0520         JNE     ??eUSCI_A0_ISR_20
+    117                    ip_reached = INDEX_ONE;
+   \   0000DC   9243....     MOV.W   #0x1, &ip_reached
+    118                    IP_READ_STATE = IS_IT_A;
+   \   0000E0   8243....     MOV.W   #0x0, &IP_READ_STATE
+   \   0000E4   023C         JMP     ??eUSCI_A0_ISR_6
+    119                  } else {
+    120                    IP_READ_STATE = IS_IT_A;
+   \                     ??eUSCI_A0_ISR_20:
+   \   0000E6   8243....     MOV.W   #0x0, &IP_READ_STATE
+    121                  }
+    122                  break;
+    123                default: break;
+    124              }
+    125              if (ip_reached) {
+   \                     ??eUSCI_A0_ISR_6:
+   \   0000EA   8293....     CMP.W   #0x0, &ip_reached
+   \   0000EE   1424         JEQ     ??eUSCI_A0_ISR_8
+    126                if (temp_char == ' ') {
+   \   0000F0   F2902000.... CMP.B   #0x20, &temp_char
+   \   0000F6   0920         JNE     ??eUSCI_A0_ISR_21
+    127                  ip_address[input2] = ZERO;
+   \   0000F8   1F42....     MOV.W   &input2, R15
+   \   0000FC   CF43....     MOV.B   #0x0, ip_address(R15)
+    128                  input2 = ZERO;
+   \   000100   8243....     MOV.W   #0x0, &input2
+    129                  ip_reached = ZERO;
+   \   000104   8243....     MOV.W   #0x0, &ip_reached
+   \   000108   073C         JMP     ??eUSCI_A0_ISR_8
+    130                } else {
+    131                  ip_address[input2++] = temp_char;
+   \                     ??eUSCI_A0_ISR_21:
+   \   00010A   1F42....     MOV.W   &input2, R15
+   \   00010E   DF42........ MOV.B   &temp_char, ip_address(R15)
+   \   000114   9253....     ADD.W   #0x1, &input2
+    132                }
+    133              }
+    134          
+    135              // search for disassociation event and fix if occurs
+    136              // switch (DIS_READ_STATE) {
+    137              //   case IS_IT_DIS:
+    138              //     if (temp_char == 'D') {
+    139              //       DIS_READ_STATE = IS_IT_I;
+    140              //     } else {
+    141              //       DIS_READ_STATE = IS_IT_DIS;
+    142              //     }
+    143              //     break;
+    144              //   case IS_IT_I:
+    145              //     if (temp_char == 'i') {
+    146              //       DIS_READ_STATE = IS_IT_S;
+    147              //     } else {
+    148              //       DIS_READ_STATE = IS_IT_DIS;
+    149              //     }
+    150              //     break;
+    151              //   case IS_IT_S:
+    152              //     if (temp_char == 's') {
+    153              //       dis_fix = INDEX_ONE;
+    154              //       DIS_READ_STATE = IS_IT_DIS;
+    155              //     } else {
+    156              //       DIS_READ_STATE = IS_IT_DIS;
+    157              //     }
+    158              //     break;
+    159              //   default: break;
+    160              // }
+    161              // if (dis_fix) {
+    162              //   sendToIOT("AT+WSYNCINTRL=65535\r\n");
+    163              //   //sendToIOT("AT+Ping=google.com,1");
+    164              //   sendToIOT("AT+NSTCP=1236,1\r\n");
+    165              //   dis_fix = ZERO;
+    166              // }
+    167          
+    168              IOT_Char_Rx[temp2] = UCA0RXBUF;
+   \                     ??eUSCI_A0_ISR_8:
+   \   000118   1E420C05     MOV.W   &0x50c, R14
+   \   00011C   1F42....     MOV.W   &temp2, R15
+   \   000120   CF4E....     MOV.B   R14, IOT_Char_Rx(R15)
+    169              
+    170              if (iot_rx_ring_wr >= (sizeof(IOT_Char_Rx))) {
+   \   000124   B2904000.... CMP.W   #0x40, &iot_rx_ring_wr
+   \   00012A   0228         JNC     ??eUSCI_A0_ISR_22
+    171                iot_rx_ring_wr = BEGINNING; // Circular buffer back to beginning
+   \   00012C   8243....     MOV.W   #0x0, &iot_rx_ring_wr
+    172              }
+    173          
+    174              // send to UCA0TXBUF for setting command
+    175              UCA1TXBUF = IOT_Char_Rx[temp2];
+   \                     ??eUSCI_A0_ISR_22:
+   \   000130   1F42....     MOV.W   &temp2, R15
+   \   000134   5F4F....     MOV.B   IOT_Char_Rx(R15), R15
+   \   000138   4F4F         MOV.B   R15, R15
+   \   00013A   824F8E05     MOV.W   R15, &0x58e
+    176          
+    177              break;
+    178            case INDEX_FOUR: // Vector 4 – TXIFG
+    179            default: break;
+    180            }
+    181          }
+   \                     ??eUSCI_A0_ISR_1:
+   \   00013E   1E17         POPM.W  #0x2, R15
+   \   000140   0013         RETI
+   \   000142                REQUIRE _A_UCA0RXBUF_L
+   \   000142                REQUIRE _A_UCA1TXBUF_L
+   \   000142                REQUIRE _A_UCA0IV_L
+    182          
+    183          
+    184          // USB ===============================================================================
+    185          // check if command starts with A
+    186          #pragma vector = EUSCI_A1_VECTOR // usb
+
+   \                                 In  segment ISR_CODE, align 2
+    187          __interrupt void eUSCI_A1_ISR(void) {
+   \                     eUSCI_A1_ISR:
+   \   000000   2F15         PUSHM.W #0x3, R15
+    188          unsigned int temp;
+    189          //int i;
+    190          switch(__even_in_range(UCA1IV,INTERRUPT8)) {
+   \   000002   1F429E05     MOV.W   &0x59e, R15
+   \   000006   E00F         ADDA    R15, PC
+   \                     `?<Jumptable for eUSCI_A1_ISR>_0`:
+   \   000008   203C         JMP     ??eUSCI_A1_ISR_2
+   \   00000A   033C         JMP     ??eUSCI_A1_ISR_4
+   \   00000C   1E3C         JMP     ??eUSCI_A1_ISR_2
+   \   00000E   1D3C         JMP     ??eUSCI_A1_ISR_2
+   \   000010   1C3C         JMP     ??eUSCI_A1_ISR_2
+    191            case ZERO: // Vector 0 - no interrupt
+    192              break;
+    193            case INDEX_TWO: // Vector 2 - RXIFG
+    194              temp = usb_rx_ring_wr++;
+   \                     ??eUSCI_A1_ISR_4:
+   \   000012   1F42....     MOV.W   &usb_rx_ring_wr, R15
+   \   000016   0E4F         MOV.W   R15, R14
+   \   000018   1E53         ADD.W   #0x1, R14
+   \   00001A   824E....     MOV.W   R14, &usb_rx_ring_wr
+   \   00001E   0D4F         MOV.W   R15, R13
+    195          
+    196              
+    197              USB_Char_Rx[temp] = UCA1RXBUF;
+   \   000020   1E428C05     MOV.W   &0x58c, R14
+   \   000024   CD4E....     MOV.B   R14, USB_Char_Rx(R13)
+    198          
+    199              if (USB_Char_Rx[temp] == '\r') {
+   \   000028   FD900D00.... CMP.B   #0xd, USB_Char_Rx(R13)
+   \   00002E   0220         JNE     ??eUSCI_A1_ISR_3
+    200                usb_rx_ring_wr = BEGINNING;
+   \   000030   8243....     MOV.W   #0x0, &usb_rx_ring_wr
+    201              }
+    202              UCA0TXBUF = USB_Char_Rx[temp];
+   \                     ??eUSCI_A1_ISR_3:
+   \   000034   5F4D....     MOV.B   USB_Char_Rx(R13), R15
+   \   000038   4F4F         MOV.B   R15, R15
+   \   00003A   824F0E05     MOV.W   R15, &0x50e
+    203          
+    204              //UCAxSTATW & UCBUSY --> to check if something is transmitting
+    205          
+    206          
+    207              if (usb_rx_ring_wr >= (sizeof(USB_Char_Rx))) {
+   \   00003E   B2904000.... CMP.W   #0x40, &usb_rx_ring_wr
+   \   000044   0228         JNC     ??eUSCI_A1_ISR_2
+    208                usb_rx_ring_wr = BEGINNING; // Circular buffer back to beginning
+   \   000046   8243....     MOV.W   #0x0, &usb_rx_ring_wr
+    209              }
+    210          
+    211              break;
+    212            case INDEX_FOUR: // Vector 4 – TXIFG
+    213          
+    214            	break;
+    215          //------------------------------------------------------------------------------
+    216            default: break;
+    217            }
+    218          }
+   \                     ??eUSCI_A1_ISR_2:
+   \   00004A   2D17         POPM.W  #0x3, R15
+   \   00004C   0013         RETI
+   \   00004E                REQUIRE _A_UCA1RXBUF_L
+   \   00004E                REQUIRE _A_UCA0TXBUF_L
+   \   00004E                REQUIRE _A_UCA1IV_L
+
+   \                                 In  segment INTVEC, offset 0x40, root
+   \                     `??eUSCI_A1_ISR::??INTVEC 64`:
+   \   000040   ....         DC16    eUSCI_A1_ISR
+
+   \                                 In  segment INTVEC, offset 0x42, root
+   \                     `??eUSCI_A0_ISR::??INTVEC 66`:
+   \   000042   ....         DC16    eUSCI_A0_ISR
+
+   \                                 In  segment DATA16_ID, align 1, align-sorted
+   \                     `?<Initializer for test_command>`:
+   \   000000   204E43535520 DC8 20H, 4EH, 43H, 53H, 55H, 20H, 20H, 23H
+   \            2023        
+   \   000008   3120         DC8 31H, 20H
+    219          
+    220          
+    221          
+
+   Maximum stack usage in bytes:
+
+   CSTACK Function
+   ------ --------
+      8   eUSCI_A0_ISR
+     10   eUSCI_A1_ISR
+
+
+   Segment part sizes:
+
+   Bytes  Function/Label
+   -----  --------------
+      10  ?<Initializer for test_command>
+       2  DIS_READ_STATE
+       2  IP_READ_STATE
+       2  UCA0_index
+       2  UCA1_index
+       2  _A_UCA0IV_L
+       2  _A_UCA0RXBUF_L
+       2  _A_UCA0TXBUF_L
+       2  _A_UCA1IV_L
+       2  _A_UCA1RXBUF_L
+       2  _A_UCA1TXBUF_L
+      20  command
+       2  command_start
+       2  dis_fix
+     322  eUSCI_A0_ISR
+       2  eUSCI_A0_ISR::??INTVEC 66
+      78  eUSCI_A1_ISR
+       2  eUSCI_A1_ISR::??INTVEC 64
+       2  get_command
+       2  input
+       2  input2
+       2  iot_rx_ring_wr
+      30  ip_address
+       2  start_copy_iot
+       2  start_copy_usb
+       2  temp
+       2  temp2
+       1  temp_char
+      10  test_command
+       2  transcribe_done
+
+ 
+  12 bytes in segment DATA16_AN
+  10 bytes in segment DATA16_I
+  10 bytes in segment DATA16_ID
+  81 bytes in segment DATA16_Z
+   4 bytes in segment INTVEC
+ 400 bytes in segment ISR_CODE
+ 
+ 400 bytes of CODE  memory
+  10 bytes of CONST memory (+  4 bytes shared)
+  91 bytes of DATA  memory (+ 12 bytes shared)
+
+Errors: none
+Warnings: none
