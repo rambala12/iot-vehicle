@@ -44,7 +44,7 @@ The code is setup so that once you have connected to WiFi, the next time you tur
 ## Step 3. Connecting to vehic le through phone
 The application I use (and recommend) to communicate with the vehicle is called TCP Telnet Terminal. You can use any terminal emulator for your phone or device as long as it has TCP/IP protocol functionality. Once you are connected, you should be able to send information to the IoT module that will then convey the commands to the board to be interpreted. 
 
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/tcpconnect.gif" width="170" height="300" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/tcpconnect.gif" width="200" height="400" />
 
 
 ## Step 4. Know the commands
