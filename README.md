@@ -2,7 +2,7 @@
 Programmed TI MSP430FR2355 microcontroller using Embedded C to build a remote car with functionality to be controlled through your phone or laptop using the GS2101MIP Wi-Fi Module to send and receive information.
 
 ## Images of the infamous speed demon
-![](images/speed_demon1.jpg)
+![](images/speed_demon1.jpg =250x250)
 ![](images/speed_demon2.jpg)
 
 
