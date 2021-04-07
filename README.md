@@ -38,6 +38,7 @@ Note: The code is set to keep pinging google.com in order to maintain the connec
 
 ## Step 2. Turning power on
 The code is setup so that once you have connected to WiFi, the next time you turn the car on it will automatically initialize the port information and siplay the IP address on the screen. The port is now set to "1236" in the code and can always be changed to a 4-digit number of your choosing. 
+
 ![](images/poweron.gif)
 
 
