@@ -58,10 +58,12 @@ The four avaiable direction commands are:
 - B : Backward/Reverse
 
 So for example, if you wanted to make the car go forward for 5 seconds, you would send: $1212F5
-![](images/sendingcommands.gif)
+
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/sendingcommands.gif" width="200" height="400" />
 
 
 ## Step 5. Have fun!
 The TCP Telnet Terminal app lets you have programmed buttons that send a ready command. I have mine configured for the Forward, Right, Left, and Backward commands. This way I can control the direction with the touch of a button instead of typing out the command each time \(As you can see in the video\).
+
 ![](images/movement.gif)
 
