@@ -3,7 +3,7 @@ Programmed TI MSP430FR2355 microcontroller using Embedded C to build a remote ca
 
 ## Images of the infamous speed demon
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon1.jpg" width="300" height="400" />
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon2.jpg" width="400" height="400" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon2.jpg" width="500" height="400" />
 
 
 # Instruction Manual
@@ -13,7 +13,7 @@ Download a RS232 Terminal that can be used for serial and TCP communications in 
 Note: The code is set to keep pinging google.com in order to maintain the connection and lessens chances of the connection being weakened/disconnected. This causes the terminal window to stay populated with the results from the ping, do not be alarmed, that is normal.
 
 ### Termite Baud Rate Settings
-![](images/wifi_setup/termitesettings.PNG)
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/termitesettings.PNG" width="400" height="400" />
 
 ### Reset module
 ![](images/wifi_setup/resetterm.PNG)
