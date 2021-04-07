@@ -13,7 +13,7 @@ Download a RS232 Terminal that can be used for serial and TCP communications in 
 Note: The code is set to keep pinging google.com in order to maintain the connection and lessens chances of the connection being weakened/disconnected. This causes the terminal window to stay populated with the results from the ping, do not be alarmed, that is normal.
 
 ### Termite Baud Rate Settings
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/termitesettings.PNG" width="400" height="300" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/termitesettings.PNG" width="300" height="200" />
 
 ### Reset module
 ![](images/wifi_setup/resetterm.PNG)
