@@ -19,7 +19,7 @@ Note: The code is set to keep pinging google.com in order to maintain the connec
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetterm.PNG" width="350" height="250" />
 
 ### Reset command expected result
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="250" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="25" />
 
 ### Enter WiFi password
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/wifipassword.PNG" width="350" height="250" />
@@ -28,7 +28,7 @@ Note: The code is set to keep pinging google.com in order to maintain the connec
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/wifiname.PNG" width="350" height="250" />
 
 ### Reset one more time
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="250" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="25" />
 
 ### Use NSTAT command to check connection
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/nstat.PNG" width="350" height="250" />
