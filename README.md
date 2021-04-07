@@ -28,7 +28,7 @@ Note: The code is set to keep pinging google.com in order to maintain the connec
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/wifiname.PNG" width="350" height="250" />
 
 ### Reset one more time
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="25" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/resetresult.PNG" width="350" height="70" />
 
 ### Use NSTAT command to check connection
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/wifi_setup/nstat.PNG" width="350" height="250" />
@@ -43,7 +43,7 @@ The code is setup so that once you have connected to WiFi, the next time you tur
 
 ## Step 3. Connecting to vehic le through phone
 The application I use (and recommend) to communicate with the vehicle is called TCP Telnet Terminal. You can use any terminal emulator for your phone or device as long as it has TCP/IP protocol functionality. Once you are connected, you should be able to send information to the IoT module that will then convey the commands to the board to be interpreted. 
-![](images/tcpconnect.gif)
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/tcpconnect.gif" width="100" height="700" />
 
 
 ## Step 4. Know the commands
