@@ -3,7 +3,7 @@ Programmed TI MSP430FR2355 microcontroller using Embedded C to build a remote ca
 
 ## Images of the infamous speed demon
 <img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon1.jpg" width="300" height="400" />
-<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon2.jpg" width="300" height="400" />
+<img src="https://github.com/rambala12/iot-vehicle/blob/main/images/speed_demon2.jpg" width="400" height="400" />
 
 
 # Instruction Manual
